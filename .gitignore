@@ -1,2 +1,19 @@
 *.class
 *.log
+
+.idea
+.
+
+# *.iml
+# *.ipr
+
+out/
+target/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# *.iml
+# modules.xml
+# .idea/misc.xml
+# *.ipr
