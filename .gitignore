@@ -1,14 +1,28 @@
 *.class
 *.log
 
+# Intellij
 .idea
 .
+# VSCode
+.vscode
+
+# Bloop
+.bloop
+project/.bloop
+
+# Metals
+.metals
+project/metals.sbt
+project/project/.metals
 
 # *.iml
 # *.ipr
 
+# Builds
 out/
 target/
+project/project
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
