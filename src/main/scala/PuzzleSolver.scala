@@ -28,7 +28,7 @@ object PuzzleSolver extends App{
 
   initRW(args(0),args(1))
 
-  val numPuzzles=getNumPuzzles()
+  val numPuzzles=getNumPuzzles
 
   for (count<- 0 until numPuzzles) {
     println("Solving puzzle #"+(count+1).toString)
