@@ -1,0 +1,7 @@
+puzzles 3
+size 13x9
+cannot solve this puzzle
+size 13x9
+cannot solve this puzzle
+size 13x9
+cannot solve this puzzle
