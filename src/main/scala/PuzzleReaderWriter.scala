@@ -1,12 +1,15 @@
 import java.io.FileWriter
 import scala.io._
 
+
+// TODO: Look at currying/partial functions
 object PuzzleReaderWriter{
   var unsolvedFile:String="";
   var solvedFile:String="";
   var lines:List[String]=Nil;
   var fw:FileWriter=null;
 
+  // TODO: Wrap functino in IO tag to better signal that this is an impure function
   def initRW(infile:String, outfile:String): Unit ={ // Initiate read write process
     unsolvedFile = infile
     solvedFile = outfile
@@ -27,12 +30,34 @@ object PuzzleReaderWriter{
   // Read size of puzzle, then read puzzle lines
   // Filter items such that only ex: size is left and the index placement will correspond to index puzzle item
   // TODO: Reduce number of operations to one filter read all meta data?
+  // TODO: Read board data
+  // 1. Filter on ID
+  // 2. Filter out that above
+  // 3. Filter out that below
+  // 4. Read id, size, diff, symm, black_percent, board
   def getPuzzle(index:Int): Puzzle = {
-    val sizeNumbers = lines.filter(_ startsWith("%size"))(index).split(" ").last.split("x")
+    val sizeNumbers: Array[String] = lines.filter(_ startsWith("%size"))(index).split(" ").last.split("x")
     val id: String = lines.filter(_ startsWith("%id"))(index).split(" ").last
     val difficulty: Int = lines.filter(_ startsWith("%difficulty"))(index).split(" ").last.toInt
     val symmetry: Int = lines.filter(_ startsWith("%symmetry"))(index).split(" ").last.toInt
     val black_percent = lines.filter(_ startsWith("%black_percent"))(index).split(" ").last.toInt
+    
+    // Identify puzzly by ID
+    val indexId: Int = lines.indexOf(lines.filter(_ startsWith("%id"))(index))
+    println("Index:" + indexId)
+    
+
+    val tempBoard: Array[Array[Char]] = Array.ofDim[Char](sizeNumbers(0).toInt, sizeNumbers.last.toInt) // Create board
+    val lines2 = lines.filterNot(_ startsWith("%puzzles"))
+    println("Indextest: " + lines2.indexOf(lines2((indexId + 4))))
+    //board(0) = lines2((indexId + 5)).toArray
+    //board(1) = lines2((indexId + 6)).toArray
+    //board(2) = lines2((indexId + 7)).toArray
+
+    val board: Array[Array[Char]] = getRows(indexId, tempBoard)
+
+    board.foreach(s => println(s.mkString))
+    
     return new Puzzle(
       sizeNumbers(0).toInt,
       sizeNumbers.last.toInt,
@@ -40,7 +65,8 @@ object PuzzleReaderWriter{
       difficulty,
       symmetry,
       black_percent,
-      "")
+      "",
+      board)
   }
 
   def putSolution(puzzle: Puzzle): Unit = {
@@ -52,5 +78,18 @@ object PuzzleReaderWriter{
     fw.close()
   }
 
+  def printLines(): Unit = {
+    println(lines)
+  }
+
+  // Make functional with creating new board
+  def getRows(indexId:Int, board: Array[Array[Char]], i:Int = 0): Array[Array[Char]] = {
+    if(i < board.size) {
+      board(i) = lines((indexId + 4 + i)).toArray
+      val y = i + 1
+      getRows(indexId, board, y)
+    }
+    return board
+  }
 
 }
