@@ -4,21 +4,6 @@ object PuzzleSolver extends App{
 
   // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
-    //println(puzzle)
-
-    val id: String = "%id 13x9:1cBBBdBBbBa1b1B1b0cBBcB0d1BbBa1eBaB01bBd0fB1aBBBB001d0a0bBBb11aBBc3a0g1d"
-    val difficulty: Int = 1
-    val symmetry: Int = 1
-    val black_percent = 40
-
-    val board = Array.ofDim[Char](7,7)
-      board(0) = "* _ _ _ _ _ _".toArray
-      board(1) = "2 _ _ * _ _ _".toArray
-      board(2) = "* 1 _ 2 0 _ *".toArray
-      board(3) = "X _ _ * _ _ _".toArray
-      board(4) = "X _ * _ _ _ _".toArray
-      board(5) = "* _ _ _ _ 0 _".toArray
-      board(6) = "2 * X _ * _ _".toArray
     
     // we predefine just two solutions
     val solution7x7 =
@@ -41,7 +26,7 @@ object PuzzleSolver extends App{
       case 1005 => solution10x5
       case _    => "cannot solve this puzzle"
     }
-    return new Puzzle(puzzle.sizeX, puzzle.sizeY, id, difficulty, symmetry, black_percent, solution, board)
+    return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.id, puzzle.difficulty, puzzle.symmetry, puzzle.black_percent, puzzle.solution, puzzle.board)
   }
 
   initRW(args(0),args(1)) // read argument, file 1 is file containing puzzles, file 2 is file to write solutions

@@ -17,8 +17,6 @@ object PuzzleReaderWriter{
     fw = new FileWriter(solvedFile, false)
   }
 
-
-
   // Gets the number of puzzles in file from first line in the file
   def getNumPuzzles: Int = {
     val countPuzzles = lines(0).split(" ").last.toInt
@@ -43,20 +41,9 @@ object PuzzleReaderWriter{
     val black_percent = lines.filter(_ startsWith("%black_percent"))(index).split(" ").last.toInt
     
     // Identify puzzly by ID
-    val indexId: Int = lines.indexOf(lines.filter(_ startsWith("%id"))(index))
-    println("Index:" + indexId)
-    
-
-    val tempBoard: Array[Array[Char]] = Array.ofDim[Char](sizeNumbers(0).toInt, sizeNumbers.last.toInt) // Create board
-    val lines2 = lines.filterNot(_ startsWith("%puzzles"))
-    println("Indextest: " + lines2.indexOf(lines2((indexId + 4))))
-    //board(0) = lines2((indexId + 5)).toArray
-    //board(1) = lines2((indexId + 6)).toArray
-    //board(2) = lines2((indexId + 7)).toArray
-
-    val board: Array[Array[Char]] = getRows(indexId, tempBoard)
-
-    board.foreach(s => println(s.mkString))
+    val indexId: Int = lines.indexOf(lines.filter(_ startsWith("%id"))(index))    
+    val board: Array[Array[Char]] = getRows(indexId, Array.ofDim[Char](sizeNumbers(0).toInt, sizeNumbers.last.toInt))
+  
     
     return new Puzzle(
       sizeNumbers(0).toInt,
@@ -78,15 +65,12 @@ object PuzzleReaderWriter{
     fw.close()
   }
 
-  def printLines(): Unit = {
-    println(lines)
-  }
-
-  // Make functional with creating new board
+  // TODO: Make more functional with creating new board
+  // Recursivly returns a board with the added row
   def getRows(indexId:Int, board: Array[Array[Char]], i:Int = 0): Array[Array[Char]] = {
     if(i < board.size) {
       board(i) = lines((indexId + 4 + i)).toArray
-      val y = i + 1
+      val y = i + 1 // TODO: Can this be done better in scala?
       getRows(indexId, board, y)
     }
     return board
