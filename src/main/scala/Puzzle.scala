@@ -15,8 +15,8 @@ class Puzzle(x: Int, y: Int, _id: String, _difficulty: Int, _symmetry: Int, _bla
       s"${printBoard}"
   }
 
-  // TODO: Implement board presentation
+  // Converts board to rows of strings
   def printBoard = {
-    print("IMPLEMENT THIS")
+    board.foreach(s => println(s.mkString))
   }
 }
