@@ -10,6 +10,7 @@ object PuzzleReaderWriter{
   var fw:FileWriter=null;
 
   // TODO: Wrap functino in IO tag to better signal that this is an impure function
+  // IO is impure as you need to read/write to files outside of the function/interact with the outside
   def initRW(infile:String, outfile:String): Unit ={ // Initiate read write process
     unsolvedFile = infile
     solvedFile = outfile
@@ -29,10 +30,12 @@ object PuzzleReaderWriter{
   // Filter items such that only ex: size is left and the index placement will correspond to index puzzle item
   // TODO: Reduce number of operations to one filter read all meta data?
   // TODO: Read board data
+  // TODO: Directly extraxt sizeNumbers as an Int array instead
   // 1. Filter on ID
   // 2. Filter out that above
   // 3. Filter out that below
   // 4. Read id, size, diff, symm, black_percent, board
+  // Impure function as it reads lines from outside of function
   def getPuzzle(index:Int): Puzzle = {
     val sizeNumbers: Array[String] = lines.filter(_ startsWith("%size"))(index).split(" ").last.split("x")
     val id: String = lines.filter(_ startsWith("%id"))(index).split(" ").last
@@ -42,8 +45,8 @@ object PuzzleReaderWriter{
     
     // Identify puzzly by ID
     val indexId: Int = lines.indexOf(lines.filter(_ startsWith("%id"))(index))    
-    val board: Array[Array[Char]] = getRows(indexId, Array.ofDim[Char](sizeNumbers(0).toInt, sizeNumbers.last.toInt))
-  
+    val board: Array[Array[Char]] = getRows(indexId, Array.ofDim[Char](sizeNumbers.last.toInt, sizeNumbers(0).toInt))
+    
     
     return new Puzzle(
       sizeNumbers(0).toInt,
@@ -67,7 +70,7 @@ object PuzzleReaderWriter{
 
   // TODO: Make more functional with creating new board
   // Recursivly returns a board with the added row
-  def getRows(indexId:Int, board: Array[Array[Char]], i:Int = 0): Array[Array[Char]] = {
+  private def getRows(indexId:Int, board: Array[Array[Char]], i:Int = 0): Array[Array[Char]] = {
     if(i < board.size) {
       board(i) = lines((indexId + 4 + i)).toArray
       val y = i + 1 // TODO: Can this be done better in scala?

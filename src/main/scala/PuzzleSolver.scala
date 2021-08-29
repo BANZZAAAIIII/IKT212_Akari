@@ -26,6 +26,8 @@ object PuzzleSolver extends App{
       case 1005 => solution10x5
       case _    => "cannot solve this puzzle"
     }
+
+    println(puzzle.toString())
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.id, puzzle.difficulty, puzzle.symmetry, puzzle.black_percent, puzzle.solution, puzzle.board)
   }
 
