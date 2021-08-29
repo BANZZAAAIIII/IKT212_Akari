@@ -57,6 +57,10 @@ object solver extends App {
   def check_tile_for_Empty(c: Char): Boolean = {
     c match {
       case '_' => true
+      case '1' => true
+      case '2' => true
+      case '3' => true
+      case '4' => true
       case _   => false
     }
   }
@@ -71,11 +75,12 @@ object solver extends App {
 
   def filter_space(c: Char): Boolean = c != ' '
 
-  val simple_board_X_44 = Array.ofDim[Char](4,4)
-  simple_board_X_44(0) = "_ _ X _".toArray.filter(filter_space)
-  simple_board_X_44(1) = "_ X X _".toArray.filter(filter_space)
-  simple_board_X_44(2) = "_ _ * _".toArray.filter(filter_space)
-  simple_board_X_44(3) = "_ _ _ _".toArray.filter(filter_space)
+  val simple_board_X_44 = Array.ofDim[Char](5,4)
+  simple_board_X_44(0) = "1 _ X _".toArray.filter(_ != ' ')
+  simple_board_X_44(1) = "2 X X _".toArray.filter(filter_space)
+  simple_board_X_44(2) = "3 _ * _".toArray.filter(filter_space)
+  simple_board_X_44(3) = "4 _ _ _".toArray.filter(filter_space)
+  simple_board_X_44(4) = "5 _ _ _".toArray.filter(filter_space)
 
   def check_tile(c: Char): Option[Boolean] = {
     print(c)
@@ -87,11 +92,10 @@ object solver extends App {
 
 
   def check_row(board:Array[Char], x: Int): Boolean = {
-    val x_len = board.length
     // Checks to the right
     def check_row_right():Boolean = {
       println("checking right")
-      for(i <- x until x_len) {
+      for(i <- x until board.length) {
         val tile = board(i)
         print(tile)
         if (!check_tile_for_Empty(tile)) {
@@ -118,11 +122,9 @@ object solver extends App {
   }
 
   def check_col(board: Array[Array[Char]], x: Int, y: Int): Boolean = {
-    val y_len = board.length
-
     def check_col_up():Boolean = {
       println("checking up")
-      for(i <- y until y_len) {
+      for(i <- y until board.length) {
         val tile = board(i)(x)
         print(tile)
         if (!check_tile_for_Empty(tile)) {
@@ -147,22 +149,38 @@ object solver extends App {
     check_col_up() && check_col_down()
   }
 
+
+  def check_array(board:Array[Char], range: Range): Boolean = {
+    print("\nchecking array: ")
+    board.foreach(print(_))
+    println("")
+    for(i <- range) {
+      val tile = board(i)
+      print(tile)
+      if (!check_tile_for_Empty(tile)) {
+        return !check_tile_for_light(tile)
+      }
+    }
+    return true
+  }
+
+
   /** Checks all sides of a x, y pos for a light
    *  Returns true of there is no light on the same row or col blocking
    */
   def check_placement(board: Array[Array[Char]], x: Int, y: Int): Boolean = {
-    check_col(board, x, y) && check_row(board(y), x)
+    val pos = check_array(board(x), x until simple_board_X_44(0).length) && check_array(for(a <- simple_board_X_44) yield a(x), x until simple_board_X_44.length)
+    val neg = check_array(board(x), (0 until x).reverse) && check_array(for(a <- simple_board_X_44) yield a(x), (0 until x).reverse)
+
+    return pos && neg
   }
-  val x = 0
-  val y = 0
+  val x = 1
+  val y = 1
 
-  println("\nIs this a valid tile to place a light: " + check_placement(simple_board_X_44, x, y))
+//  println("\nIs this a valid tile to place a light: " + check_placement(simple_board_X_44, x, y))
+//  println("\nIs this a valid tile to place a light: " + check_array(simple_board_X_44(y), (x until simple_board_X_44(0).length)))
+//  val col: Array[Char] = for(a <- simple_board_X_44) yield a(0)
 
-
-
-
-
-
-
-
+    println("\nIs this a valid tile to place a light: " + check_placement(simple_board_X_44, x, y))
+    println()
 }
