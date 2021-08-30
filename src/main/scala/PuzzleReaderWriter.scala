@@ -6,7 +6,7 @@ import scala.io._
 object PuzzleReaderWriter{
   var unsolvedFile:String="";
   var solvedFile:String="";
-  var lines:List[String]=Nil;
+  var lines:List[String]=Nil; // Parameterize.
   var fw:FileWriter=null;
 
   // TODO: Wrap functino in IO tag to better signal that this is an impure function
@@ -31,6 +31,7 @@ object PuzzleReaderWriter{
   // TODO: Reduce number of operations to one filter read all meta data?
   // TODO: Read board data
   // TODO: Directly extraxt sizeNumbers as an Int array instead
+  // TODO: Create a function that filters lines on input string
   // 1. Filter on ID
   // 2. Filter out that above
   // 3. Filter out that below

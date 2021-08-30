@@ -33,11 +33,7 @@ object PuzzleSolver extends App{
 
   initRW(args(0),args(1)) // read argument, file 1 is file containing puzzles, file 2 is file to write solutions
 
-<<<<<<< HEAD
-  val numPuzzles=getNumPuzzles
-=======
   val numPuzzles = getNumPuzzles // Holds number of puzzles in file 1
->>>>>>> 6fcc700 (Added new attributes to puzzles, and read them from file, added example puzzles)
 
   // Looper til antall puzzles, henter puzzle fra en liste, løser puzzle, skrivr puzzle til fil
   for (count<- 0 until numPuzzles) {
