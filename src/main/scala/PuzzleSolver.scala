@@ -1,7 +1,10 @@
 import PuzzleReaderWriter.{initRW, getNumPuzzles, getPuzzle, putSolution, closing}
 
 object PuzzleSolver extends App{
+
+  // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
+    
     // we predefine just two solutions
     val solution7x7 =
         "* _ _ _ _ _ _\n"+
@@ -23,13 +26,20 @@ object PuzzleSolver extends App{
       case 1005 => solution10x5
       case _    => "cannot solve this puzzle"
     }
-    return new Puzzle(puzzle.sizeX, puzzle.sizeY, solution)
+
+    println(puzzle.toString())
+    return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.id, puzzle.difficulty, puzzle.symmetry, puzzle.black_percent, puzzle.solution, puzzle.board)
   }
 
-  initRW(args(0),args(1))
+  initRW(args(0),args(1)) // read argument, file 1 is file containing puzzles, file 2 is file to write solutions
 
+<<<<<<< HEAD
   val numPuzzles=getNumPuzzles
+=======
+  val numPuzzles = getNumPuzzles // Holds number of puzzles in file 1
+>>>>>>> 6fcc700 (Added new attributes to puzzles, and read them from file, added example puzzles)
 
+  // Looper til antall puzzles, henter puzzle fra en liste, løser puzzle, skrivr puzzle til fil
   for (count<- 0 until numPuzzles) {
     println("Solving puzzle #"+(count+1).toString)
     putSolution(solve(getPuzzle(count)))
