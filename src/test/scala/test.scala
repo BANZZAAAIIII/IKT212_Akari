@@ -1,4 +1,5 @@
 import org.scalatest.FunSuite
+import Const._
 
 class test extends FunSuite {
   test("getNumPuzzles.PuzzleReaderWriter") {
@@ -10,45 +11,49 @@ class test extends FunSuite {
  /** A set of simple puzzles that the Akari solver can solve */
 class SimplePuzzleTests extends FunSuite {
    import solver.filter_space
-   val simple_board_X_44: Array[Array[Char]] = Array.ofDim[Char](4,4)
-   simple_board_X_44(0) = "_ _ X *".toArray.filter(filter_space)
-   simple_board_X_44(1) = "X _ _ X".toArray.filter(filter_space)
-   simple_board_X_44(2) = "_ _ * _".toArray.filter(filter_space)
-   simple_board_X_44(3) = "_ _ _ _".toArray.filter(filter_space)
+   val simple_board_X_44: List[List[Char]] = List(
+     "_ _ X *".toList.filter(filter_space),
+     "X _ _ X".toList.filter(filter_space),
+     "_ _ * _".toList.filter(filter_space),
+     "_ _ _ _".toList.filter(filter_space)
+   )
 
-   test("TestValidPlacementRow00.PuzzleSolver") {
+   test("TestValidPlacement00.PuzzleSolver") {
      val x = 0
      val y = 0
-     //assert(solver.check_row(simple_board_X_44(y), x))
+
+     solver.place_light(simple_board_X_44, x, y) match {
+       case Some(b) => assert(b(y)(x) == Light)
+       case None    => fail("This move should place a light")
+     }
    }
 
-   test("TestValidPlacementRow10.PuzzleSolver") {
-     val x = 0
-     val y = 1
-     //assert(solver.check_row(simple_board_X_44(y), x))
+   test("TestValidPlacement10.PuzzleSolver") {
+     val x = 1
+     val y = 0
+
+     solver.place_light(simple_board_X_44, x, y) match {
+       case Some(b) => assert(b(y)(x) == Light)
+       case None    => fail("This move should place a light")
+     }
    }
 
-   test("TestValidPlacementRow20.PuzzleSolver") {
-     val x = 0
-     val y = 2
-     //assert(!solver.check_row(simple_board_X_44(y), x))
+   test("TestValidPlacementRow13.PuzzleSolver") {
+     val x = 1
+     val y = 3
+
+     solver.place_light(simple_board_X_44, x, y) match {
+       case Some(b) => assert(b(y)(x) == Light)
+       case None    => fail("This move should place a light")
+     }
    }
 
-   test("TestValidPlacementCol00.PuzzleSolver") {
+   test("TestInvalidPlacement30.PuzzleSolver") {
      val x = 3
      val y = 0
-     //assert(!solver.check_col(simple_board_X_44, x, y))
-   }
-
-   test("TestValidPlacementCol10.PuzzleSolver") {
-     val x = 3
-     val y = 1
-     //assert(!solver.check_col(simple_board_X_44, x, y))
-   }
-
-   test("TestValidPlacementCol20.PuzzleSolver") {
-     val x = 3
-     val y = 2
-     //assert(solver.check_col(simple_board_X_44, x, y))
+     solver.place_light(simple_board_X_44, x, y) match {
+       case Some(_) => fail("This move shouldn't be legal")
+       case None    => succeed
+     }
    }
 }

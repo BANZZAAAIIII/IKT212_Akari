@@ -47,9 +47,9 @@ object PuzzleSolver extends App{
 }
 
 object solver extends App {
-  def print_board(a: Array[Array[Char]]): Unit = {
+  def print_board(a: List[List[Char]]): Unit = {
     a.foreach(y => {
-      y.foreach(x => print(x))
+      y.foreach(x => print(x + " "))
       println("")
     })
   }
@@ -58,19 +58,8 @@ object solver extends App {
   def check_tile_for_Empty(c: Char): Boolean = {
     c match {
       case Empty => true
-      case One => true
-      case Two => true
-      case Three => true
-      case Four => true
       case _    => false
     }
-  }
-
-  /** Checks if its possible to place light a light
-    * Returns false is tile is anything other then _ (empty) */
-  def check_tile_for_valid_placement(c: Char): Boolean = c match {
-    case Empty => true
-    case _     => false
   }
 
   /** Returns true when given a light */
@@ -81,52 +70,43 @@ object solver extends App {
     }
   }
 
+
   def filter_space(c: Char): Boolean = c != ' '
-
-  //val simple_board_X_44 = Array.ofDim[Char](5,4)
-  //simple_board_X_44(0) = "1 1 1 1".toArray.filter(filter_space)
-  //simple_board_X_44(1) = "2 2 2 2".toArray.filter(filter_space)
-  //simple_board_X_44(2) = "3 3 3 3".toArray.filter(filter_space)
-  //simple_board_X_44(3) = "4 4 4 4".toArray.filter(filter_space)
-  //simple_board_X_44(4) = "5 5 5 5".toArray.filter(filter_space)
-
-  val simple_board_X_44: Array[Array[Char]] = Array.ofDim[Char](4,4)
-  simple_board_X_44(0) = "_ _ X *".toArray.filter(filter_space)
-  simple_board_X_44(1) = "X _ _ X".toArray.filter(filter_space)
-  simple_board_X_44(2) = "_ _ * _".toArray.filter(filter_space)
-  simple_board_X_44(3) = "_ _ _ _".toArray.filter(filter_space)
-
-  def check_array(board:Array[Char], range: Range): Boolean = {
-    //print("\nchecking array: ")
-    //board.foreach(print(_))
-    //println("")
-    for(i <- range) {
-      val tile = board(i)
-      //print(tile)
-      if (!check_tile_for_Empty(tile)) {
-        return !check_tile_for_light(tile)
-      }
-    }
-    return true
-  }
-
+  val simple_board_X_44: List[List[Char]] = List(
+    "_ _ X *".toList.filter(filter_space),
+    "X _ _ X".toList.filter(filter_space),
+    "_ _ * _".toList.filter(filter_space),
+    "_ _ _ _".toList.filter(filter_space)
+  )
 
   /** Checks all sides of a x, y pos for a light
    *  Returns true of there is no light on the same row or col blocking
    */
-  def check_placement(board: Array[Array[Char]], x: Int, y: Int): Boolean = {
-    if (!check_tile_for_valid_placement(board(y)(x)))
+  def check_placement(board: List[List[Char]], x: Int, y: Int): Boolean = {
+    def check_list(board:List[Char], range: Range): Boolean = {
+      for(i <- range) {
+        val tile = board(i)
+        if (!check_tile_for_Empty(tile)) {
+          return !check_tile_for_light(tile)
+        }
+      }
+      return true
+    }
+
+    if (!check_tile_for_Empty(board(y)(x)))
       return false
 
+    // Checks for a light in a positive direction for x, y pos
     val pos =
-      (check_array(board(y), x until simple_board_X_44(0).length)
+      (check_list(board(y), x until board.head.length)
       &&
-      check_array(for(a <- simple_board_X_44) yield a(x), y until simple_board_X_44.length))
+      check_list(for(a <- board) yield a(x), y until board.length))
 
+    // Checks for a light in a negative direction for x, y pos
     val neg =
-      (check_array(board(y), (0 until x).reverse)
+      (check_list(board(y), (0 until x).reverse)
       &&
-      check_array(for(a <- simple_board_X_44) yield a(x), (0 until y).reverse))
+      check_list(for(a <- board) yield a(x), (0 until y).reverse))
 
     return pos && neg
   }
@@ -134,18 +114,19 @@ object solver extends App {
    /** places a light on a x, y position if the tile is valid
     *  Returns None if placement is illegal or a new board if not
     */
-  def place_light(board: Array[Array[Char]], x:Int, y:Int): Option[Array[Array[Char]]] = {
+  def place_light(board: List[List[Char]], x:Int, y:Int): Option[List[List[Char]]] = {
     if (check_placement(board, x, y)) {
-      board(y)(x) = '*'
-      return (Option(board))
+      val newBoard = board.updated(y, board(y).updated(x, Light))
+      return Option(newBoard)
     } else
       return None
   }
 
-  val x = 1
-  val y = 2
-
-  val newboard = place_light(simple_board_X_44, x, y)
-  print_board(newboard.getOrElse(simple_board_X_44))
-
+  // usage example
+  val x = 0
+  val y = 0
+  place_light(simple_board_X_44, x, y) match {
+    case Some(b) => print_board(b)
+    case None    => println("Illegal move")
+  }
 }
