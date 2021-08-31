@@ -1,4 +1,4 @@
-name := "IKT212_Scala_project"
+name := "IKT212_Akari"
 
 version := "0.1"
 
