@@ -5,7 +5,7 @@ object PuzzleSolver extends App{
 
   // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
-    
+
     // we predefine just two solutions
     val solution7x7 =
         "* _ _ _ _ _ _\n"+
@@ -54,22 +54,17 @@ object solver extends App {
     })
   }
 
-  /** Returns true when given a empty tile */
-  def check_tile_for_Empty(c: Char): Boolean = {
-    c match {
-      case Empty => true
-      case _    => false
-    }
+  /** Returns true if the tile has any number/constraint */
+  def check_tile_if_num(c: Char): Boolean = c match {
+    case One | Two | Three | Four  => true
+    case _     => false
   }
+
+  /** Returns true when given a empty tile */
+  def check_tile_for_Empty(c: Char): Boolean = if (c == Empty) true else false
 
   /** Returns true when given a light */
-  def check_tile_for_light(c: Char): Boolean = {
-    c match {
-      case Light => true
-      case _     => false
-    }
-  }
-
+  def check_tile_for_light(c: Char): Boolean = if (c == Light) true else false
 
   def filter_space(c: Char): Boolean = c != ' '
   val simple_board_X_44: List[List[Char]] = List(
@@ -79,47 +74,73 @@ object solver extends App {
     "_ _ _ _".toList.filter(filter_space)
   )
 
-  /** Checks all sides of a x, y pos for a light
+  val simple_solved_board: List[List[Char]] = List(
+    "_ _ *".toList.filter(filter_space),
+    "_ X _".toList.filter(filter_space),
+    "* _ _".toList.filter(filter_space),
+    "_ * _".toList.filter(filter_space)
+  )
+
+  /** Checks a list if there is a light in it
+   *  Takes a Range to iterate over the list */
+  def check_list(board:List[Char], range: Range): Boolean = {
+    // TODO: exception handling
+    for(i <- range) {
+      val tile = board(i)
+      if (!check_tile_for_Empty(tile)) {
+        return !check_tile_for_light(tile)
+      }
+    }
+    return true
+  }
+
+  /** Checks all sides of a x, y pos for a light.
    *  Returns true of there is no light on the same row or col blocking
    */
   def check_placement(board: List[List[Char]], x: Int, y: Int): Boolean = {
-    def check_list(board:List[Char], range: Range): Boolean = {
-      for(i <- range) {
-        val tile = board(i)
-        if (!check_tile_for_Empty(tile)) {
-          return !check_tile_for_light(tile)
-        }
-      }
-      return true
-    }
-
-    if (!check_tile_for_Empty(board(y)(x)))
-      return false
-
     // Checks for a light in a positive direction for x, y pos
-    val pos =
-      (check_list(board(y), x until board.head.length)
-      &&
-      check_list(for(a <- board) yield a(x), y until board.length))
+    // if light is found then returns early with false to avoid checking in negative direction
+    lazy val positiveXDir: Boolean = check_list(board(y), x until board.head.length)
+    lazy val positiveYDir: Boolean = check_list(for(a <- board) yield a(x), y until board.length)
+    if (!(positiveXDir && positiveYDir)) return false
 
     // Checks for a light in a negative direction for x, y pos
-    val neg =
-      (check_list(board(y), (0 until x).reverse)
-      &&
-      check_list(for(a <- board) yield a(x), (0 until y).reverse))
-
-    return pos && neg
+    lazy val negativeXDir: Boolean = check_list(board(y), (0 until x).reverse)
+    lazy val negativeYDir: Boolean = check_list(for(a <- board) yield a(x), (0 until y).reverse)
+    return negativeXDir && negativeYDir
   }
 
-   /** places a light on a x, y position if the tile is valid
-    *  Returns None if placement is illegal or a new board if not
-    */
+  /** Places a light on a x, y position if the tile is valid.
+   *  Returns None if placement is illegal or a new board if not
+   */
   def place_light(board: List[List[Char]], x:Int, y:Int): Option[List[List[Char]]] = {
+    if (!check_tile_for_Empty(board(y)(x))) return None
+
     if (check_placement(board, x, y)) {
       val newBoard = board.updated(y, board(y).updated(x, Light))
       return Option(newBoard)
     } else
       return None
+  }
+
+  /** Checks the puzzle is solved
+   *  Dos not check if lights are placed incorrectly   */
+  def check_if_solved(board: List[List[Char]]): Boolean = {
+    for (y <- board.indices;
+         x <- board.head.indices) {
+      if (board(y)(x) != Wall) {
+        if (check_tile_if_num(board(y)(x))) {
+          //  Check if correct num if lights are adjacent
+
+          println("WIP")
+        } else {
+          // Check if that there is a light on the cell.
+          if (check_placement(board, x, y)) return false
+        }
+      }
+    }
+
+    return true
   }
 
   // usage example
@@ -129,4 +150,7 @@ object solver extends App {
     case Some(b) => print_board(b)
     case None    => println("Illegal move")
   }
+
+  println(check_if_solved(simple_solved_board))
+
 }
