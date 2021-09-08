@@ -57,7 +57,7 @@ object solver extends App {
   /** Returns true if the tile has any number/constraint */
   def check_tile_if_num(c: Char): Boolean = c match {
     case One | Two | Three | Four  => true
-    case _     => false
+    case _ => false
   }
 
   /** Returns true when given a empty tile */
@@ -75,17 +75,29 @@ object solver extends App {
   )
 
   val simple_solved_board: List[List[Char]] = List(
-    "_ _ *".toList.filter(filter_space),
+    "_ 1 *".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
-    "* _ _".toList.filter(filter_space),
-    "_ * _".toList.filter(filter_space)
+    "* 2 _".toList.filter(filter_space),
+    "_ * 2".toList.filter(filter_space),
+    "_ _ *".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space)
   )
+
+  val simple_solved_board_num: List[List[Char]] = List(
+    "_ * _ _".toList.filter(filter_space),
+    "_ _ X _".toList.filter(filter_space),
+    "_ _ * _".toList.filter(filter_space),
+    "* _ 2 *".toList.filter(filter_space)
+  )
+
 
   /** Checks a list if there is a light in it
    *  Takes a Range to iterate over the list */
   def check_list(board:List[Char], range: Range): Boolean = {
     // TODO: exception handling
     for(i <- range) {
+      // TODO: TakeWhile to make an array to a blocking square
+      // Use contains to check if there is a light
       val tile = board(i)
       if (!check_tile_for_Empty(tile)) {
         return !check_tile_for_light(tile)
@@ -114,6 +126,7 @@ object solver extends App {
    *  Returns None if placement is illegal or a new board if not
    */
   def place_light(board: List[List[Char]], x:Int, y:Int): Option[List[List[Char]]] = {
+    // TODO: Check if adjacent to number square and check square for number for adjacent lights
     if (!check_tile_for_Empty(board(y)(x))) return None
 
     if (check_placement(board, x, y)) {
@@ -127,14 +140,32 @@ object solver extends App {
    *  Dos not check if lights are placed incorrectly   */
   def check_if_solved(board: List[List[Char]]): Boolean = {
     for (y <- board.indices;
-         x <- board.head.indices) {
+         x <- board.head.indices)
+    {
+//      println("x: " + x + ", y: " + y)
       if (board(y)(x) != Wall) {
         if (check_tile_if_num(board(y)(x))) {
-          //  Check if correct num if lights are adjacent
+          // TODO: make this more functional
+          // Checks if correct num if lights are adjacent to number wall
+          var nr_of_light: Int = 0
+          if (!(x - 1 < 0))
+            if (check_tile_for_light(board(y)(x - 1))) nr_of_light += 1
 
-          println("WIP")
+          if (!(x + 1 > board.head.length - 1 ))
+            if (check_tile_for_light(board(y)(x + 1))) nr_of_light += 1
+
+          if (!(y - 1 < 0))
+            if (check_tile_for_light(board(y - 1)(x))) nr_of_light += 1
+
+          if (!(y + 1 > board.length - 1))
+            if (check_tile_for_light(board(y + 1)(x))) nr_of_light += 1
+
+//          println("nr of lights around " + board(y)(x) + " is: " + nr_of_light)
+          if (!(nr_of_light == board(y)(x).asDigit))
+            return false
+
         } else {
-          // Check if that there is a light on the cell.
+          // Check if that there is a light on current square and returns false it not.
           if (check_placement(board, x, y)) return false
         }
       }
@@ -151,6 +182,5 @@ object solver extends App {
     case None    => println("Illegal move")
   }
 
-  println(check_if_solved(simple_solved_board))
-
+  println(check_if_solved(simple_solved_board_num))
 }

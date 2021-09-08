@@ -1,5 +1,6 @@
 import org.scalatest.FunSuite
 import Const._
+import solver.simple_solved_board
 
 class test extends FunSuite {
   test("getNumPuzzles.PuzzleReaderWriter") {
@@ -9,7 +10,7 @@ class test extends FunSuite {
 }
 
 /** A set of simple puzzles that the Akari solver can solve */
-class SimplePuzzleTests extends FunSuite {
+class PlaceLightTests extends FunSuite {
   import solver.filter_space
   val simple_board_X_44: List[List[Char]] = List(
     "_ _ X *".toList.filter(filter_space),
@@ -83,3 +84,28 @@ class CheckListTests extends FunSuite {
     assert(solver.check_list(simple_board(3), simple_board(3).indices))
   }
 }
+
+class CheckSolvedTests extends FunSuite {
+  import solver.filter_space
+  val simple_solved_board: List[List[Char]] = List(
+    "_ * _ _".toList.filter(filter_space),
+    "_ _ X _".toList.filter(filter_space),
+    "_ _ * _".toList.filter(filter_space),
+    "* _ X *".toList.filter(filter_space)
+  )
+
+  val simple_solved_board_numbers: List[List[Char]] = List(
+    "1 * _ X".toList.filter(filter_space),
+    "_ _ 1 _".toList.filter(filter_space),
+    "_ _ * _".toList.filter(filter_space),
+    "* _ 2 *".toList.filter(filter_space)
+  )
+
+  test("Testcheckifsolved.PuzzleSolver") {
+    assert(solver.check_if_solved(simple_solved_board))
+  }
+  test("Testcheckifsolvednumbers.PuzzleSolver") {
+    assert(solver.check_if_solved(simple_solved_board_numbers))
+  }
+}
+
