@@ -136,6 +136,35 @@ object solver extends App {
       return None
   }
 
+
+  def check_adjacent(board: List[List[Char]], x: Int, y: Int,
+                     ifTrueCallback : Option[() => Unit],
+                     ifFalseCallback : Option[() => Unit]): Unit = {
+    if (!(x - 1 < 0))
+      if (check_tile_for_light(board(y)(x - 1)))
+        ifTrueCallback.map(c => c())
+      else
+        ifFalseCallback.map(c => c())
+
+    if (!(x + 1 > board.head.length - 1 ))
+      if (check_tile_for_light(board(y)(x + 1)))
+        ifTrueCallback.map(c => c())
+      else
+        ifFalseCallback.map(c => c())
+
+    if (!(y - 1 < 0))
+      if (check_tile_for_light(board(y - 1)(x)))
+        ifTrueCallback.map(c => c())
+      else
+        ifFalseCallback.map(c => c())
+
+    if (!(y + 1 > board.length - 1))
+      if (check_tile_for_light(board(y + 1)(x)))
+        ifTrueCallback.map(c => c())
+      else
+        ifFalseCallback.map(c => c())
+  }
+
   /** Checks the puzzle is solved
    *  Dos not check if lights are placed incorrectly   */
   def check_if_solved(board: List[List[Char]]): Boolean = {
@@ -148,17 +177,8 @@ object solver extends App {
           // TODO: make this more functional
           // Checks if correct num if lights are adjacent to number wall
           var nr_of_light: Int = 0
-          if (!(x - 1 < 0))
-            if (check_tile_for_light(board(y)(x - 1))) nr_of_light += 1
-
-          if (!(x + 1 > board.head.length - 1 ))
-            if (check_tile_for_light(board(y)(x + 1))) nr_of_light += 1
-
-          if (!(y - 1 < 0))
-            if (check_tile_for_light(board(y - 1)(x))) nr_of_light += 1
-
-          if (!(y + 1 > board.length - 1))
-            if (check_tile_for_light(board(y + 1)(x))) nr_of_light += 1
+          def incrementLight(): Unit = { nr_of_light += 1 }
+          check_adjacent(board, x, y, Some(incrementLight), Some(() => None))
 
 //          println("nr of lights around " + board(y)(x) + " is: " + nr_of_light)
           if (!(nr_of_light == board(y)(x).asDigit))
