@@ -1,6 +1,9 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution}
 import Const._
 
+import scala.::
+import scala.collection.mutable.ListBuffer
+
 object PuzzleSolver extends App{
 
   // Solver function
@@ -69,13 +72,13 @@ object solver extends App {
   def filter_space(c: Char): Boolean = c != ' '
   val simple_board_X_44: List[List[Char]] = List(
     "_ _ X *".toList.filter(filter_space),
-    "X _ _ X".toList.filter(filter_space),
+    "2 _ _ X".toList.filter(filter_space),
     "_ _ * _".toList.filter(filter_space),
     "_ _ _ _".toList.filter(filter_space)
   )
 
   val simple_solved_board: List[List[Char]] = List(
-    "_ 1 *".toList.filter(filter_space),
+    "_ 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
     "* 2 _".toList.filter(filter_space),
     "_ * 2".toList.filter(filter_space),
@@ -126,8 +129,18 @@ object solver extends App {
    *  Returns None if placement is illegal or a new board if not
    */
   def place_light(board: List[List[Char]], x:Int, y:Int): Option[List[List[Char]]] = {
-    // TODO: Check if adjacent to number square and check square for number for adjacent lights
     if (!check_tile_for_Empty(board(y)(x))) return None
+
+    // TODO: Check if adjacent to number square and check square for number for adjacent lights
+    // Creat mutable list of list with xy of adjacent number squares
+    // Check nr of light on each item(xy position) in list
+    val adjacent_num_pos = check_adjacent(board, x, y, check_tile_if_num)
+    for (num <- adjacent_num_pos) {
+      val nr_of_light = get_number_of_lights_around_number(board, num.head, num.last)
+      if (nr_of_light == board(num.last)(num.head).asDigit)
+        return None
+    }
+
 
     if (check_placement(board, x, y)) {
       val newBoard = board.updated(y, board(y).updated(x, Light))
@@ -138,32 +151,31 @@ object solver extends App {
 
 
   def check_adjacent(board: List[List[Char]], x: Int, y: Int,
-                     ifTrueCallback : Option[() => Unit],
-                     ifFalseCallback : Option[() => Unit]): Unit = {
+                     condition: Char => Boolean
+                    ): List[List[Int]] = {
+    // TODO: return list if xy pos when condition is true
+    val pos = new ListBuffer[List[Int]]()
+
     if (!(x - 1 < 0))
-      if (check_tile_for_light(board(y)(x - 1)))
-        ifTrueCallback.map(c => c())
-      else
-        ifFalseCallback.map(c => c())
+      if (condition(board(y)(x - 1)))
+        pos += List(x - 1, y)
 
     if (!(x + 1 > board.head.length - 1 ))
-      if (check_tile_for_light(board(y)(x + 1)))
-        ifTrueCallback.map(c => c())
-      else
-        ifFalseCallback.map(c => c())
+      if (condition(board(y)(x + 1)))
+        pos += List(x + 1, y)
 
     if (!(y - 1 < 0))
-      if (check_tile_for_light(board(y - 1)(x)))
-        ifTrueCallback.map(c => c())
-      else
-        ifFalseCallback.map(c => c())
+      if (condition(board(y - 1)(x)))
+        pos += List(x, y - 1)
 
     if (!(y + 1 > board.length - 1))
-      if (check_tile_for_light(board(y + 1)(x)))
-        ifTrueCallback.map(c => c())
-      else
-        ifFalseCallback.map(c => c())
+      if (condition(board(y + 1)(x)))
+        pos += List(x, y + 1)
+
+    return pos.toList
   }
+  def get_number_of_lights_around_number(board: List[List[Char]], x: Int, y: Int): Int =
+    check_adjacent(board, x, y, check_tile_for_light).length
 
   /** Checks the puzzle is solved
    *  Dos not check if lights are placed incorrectly   */
@@ -174,11 +186,8 @@ object solver extends App {
 //      println("x: " + x + ", y: " + y)
       if (board(y)(x) != Wall) {
         if (check_tile_if_num(board(y)(x))) {
-          // TODO: make this more functional
           // Checks if correct num if lights are adjacent to number wall
-          var nr_of_light: Int = 0
-          def incrementLight(): Unit = { nr_of_light += 1 }
-          check_adjacent(board, x, y, Some(incrementLight), Some(() => None))
+          val nr_of_light = get_number_of_lights_around_number(board, x, y)
 
 //          println("nr of lights around " + board(y)(x) + " is: " + nr_of_light)
           if (!(nr_of_light == board(y)(x).asDigit))
@@ -195,12 +204,13 @@ object solver extends App {
   }
 
   // usage example
-  val x = 0
-  val y = 0
-  place_light(simple_board_X_44, x, y) match {
+  val x = 2
+  val y = 2
+  place_light(simple_solved_board, x, y) match {
     case Some(b) => print_board(b)
     case None    => println("Illegal move")
   }
 
-  println(check_if_solved(simple_solved_board_num))
+//  println(check_if_solved(simple_solved_board_num))
+
 }
