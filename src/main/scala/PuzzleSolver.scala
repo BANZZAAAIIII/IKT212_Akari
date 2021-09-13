@@ -153,9 +153,9 @@ object solver extends App {
   def check_adjacent(board: List[List[Char]], x: Int, y: Int,
                      condition: Char => Boolean
                     ): List[List[Int]] = {
-    // TODO: return list if xy pos when condition is true
     val pos = new ListBuffer[List[Int]]()
 
+    // TODO: improve this by making it more functional
     if (!(x - 1 < 0))
       if (condition(board(y)(x - 1)))
         pos += List(x - 1, y)
@@ -183,13 +183,11 @@ object solver extends App {
     for (y <- board.indices;
          x <- board.head.indices)
     {
-//      println("x: " + x + ", y: " + y)
       if (board(y)(x) != Wall) {
         if (check_tile_if_num(board(y)(x))) {
           // Checks if correct num if lights are adjacent to number wall
           val nr_of_light = get_number_of_lights_around_number(board, x, y)
 
-//          println("nr of lights around " + board(y)(x) + " is: " + nr_of_light)
           if (!(nr_of_light == board(y)(x).asDigit))
             return false
 
