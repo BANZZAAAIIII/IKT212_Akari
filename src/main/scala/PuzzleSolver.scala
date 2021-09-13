@@ -1,5 +1,5 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution}
-import Const._
+import com.akari.types._
 
 import scala.::
 import scala.collection.mutable.ListBuffer
@@ -30,6 +30,7 @@ object PuzzleSolver extends App{
       case 1005 => solution10x5
       case _    => "cannot solve this puzzle"
     }
+
 
     println(puzzle.toString())
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.id, puzzle.difficulty, puzzle.symmetry, puzzle.black_percent, puzzle.solution, puzzle.board)
@@ -86,7 +87,7 @@ object solver extends App {
     "_ _ _".toList.filter(filter_space)
   )
 
-
+  
   /** Checks a list if there is a light in it
    *  Takes a Range to iterate over the list */
   def check_list(board:List[Char], range: Range): Boolean = {
