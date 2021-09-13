@@ -1,15 +1,15 @@
-puzzles 2
-size 7x7
-_ _ _ _ _ _ _
-2 _ _ _ _ _ _
-_ 1 _ 2 0 _ _
-X _ _ _ _ _ _
-X _ _ _ _ _ _
-_ _ _ _ _ 0 _
-2 _ X _ _ _ _
-size 10x5
-_ _ _ _ _ _ _ _ 1 _
-_ _ 1 0 _ _ X _ 0 _
-_ _ _ _ _ _ _ _ _ 1
-_ _ _ 2 _ 1 _ _ X _
-_ _ _ _ _ _ _ 1 _ _
+%puzzles 1
+%size 13x9
+%id 13x9:1cBBBdBBbBa1b1B1b0cBBcB0d1BbBa1eBaB01bBd0fB1aBBBB001d0a0bBBb11aBBc3a0g1d
+%difficulty 1
+%symmetry 0
+%black_percent 40
+1___XXX____XX
+__X_1__1X1__0
+___XX___X0___
+_1X__X_1_____
+X_X01__X____0
+______X1_XXXX
+001____0_0__X
+X__11_XX___3_
+0_______1____

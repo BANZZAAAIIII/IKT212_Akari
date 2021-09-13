@@ -1,5 +1,5 @@
 import org.scalatest.FunSuite
-import Const._
+import com.akari.types._
 import solver.simple_solved_board
 
 class test extends FunSuite {

@@ -1,6 +1,8 @@
 import java.io.FileWriter
 import scala.io._
 
+import com.akari.types._
+
 
 // TODO: Look at currying/partial functions
 object PuzzleReaderWriter{
@@ -46,7 +48,7 @@ object PuzzleReaderWriter{
     
     // Identify puzzly by ID
     val indexId: Int = lines.indexOf(lines.filter(_ startsWith("%id"))(index))    
-    val board: Array[Array[Char]] = getRows(indexId, Array.ofDim[Char](sizeNumbers.last.toInt, sizeNumbers(0).toInt))
+    val board: Matrix = getRows(indexId, Array.ofDim[Char](sizeNumbers.last.toInt, sizeNumbers(0).toInt)).map(_.toList).toList // TODO: ???
     
     
     return new Puzzle(

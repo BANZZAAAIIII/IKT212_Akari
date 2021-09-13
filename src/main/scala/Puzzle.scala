@@ -1,5 +1,8 @@
 // Puzzle class represents the puzzle
-class Puzzle(x: Int, y: Int, _id: String, _difficulty: Int, _symmetry: Int, _black_percent: Int, sol :String, _board: Array[Array[Char]]) {
+import com.akari.types._
+
+class Puzzle(x: Int, y: Int, _id: String, _difficulty: Int, _symmetry: Int, _black_percent: Int, sol :String, _board: Matrix) {
+
   val id: String = _id;
   val difficulty: Int = _difficulty;
   val symmetry: Int = _symmetry;
@@ -8,7 +11,7 @@ class Puzzle(x: Int, y: Int, _id: String, _difficulty: Int, _symmetry: Int, _bla
   val sizeY: Int = y;
   val solution: String = sol;
 
-  val board: Array[Array[Char]] = _board
+  val board: Matrix = _board
 
   override def toString: String = {
     s"${sizeX}x${sizeY} -->\n${solution} \n" +
