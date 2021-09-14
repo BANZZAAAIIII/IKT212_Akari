@@ -2,7 +2,6 @@
   *   TODO: Make a dictionary "x" = x, "y" = y
   */
 
-
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution}
 import com.akari.types._
 
@@ -12,11 +11,24 @@ import scala.collection.immutable.HashMap
 
 object PuzzleSolver extends App{
 
+  def filter_space(c: Char): Boolean = c != ' '
+  val simple_board: Matrix = List(
+    "_ 1 _".toList.filter(filter_space),
+    "_ X _".toList.filter(filter_space),
+    "_ 2 _".toList.filter(filter_space),
+    "_ _ 2".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space)
+  )
   // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
 
     // Herusitic tricks
-    println(solver.place_next(puzzle.board))
+    
+    val temp = solver.backtracking(simple_board, solver.find_candidates(simple_board))
+    println(temp)
+
+    // println(solver.find_candidates(simple_board))
     // Backtracking
     //backtracking(puzzle.board)
     
@@ -85,10 +97,12 @@ object solver extends App {
 
   def filter_space(c: Char): Boolean = c != ' '
   val simple_board: Matrix = List(
-    "_ 1 X *".toList.filter(filter_space),
-    "2 _ * X".toList.filter(filter_space),
-    "_ _ _ _".toList.filter(filter_space),
-    "_ _ _ _".toList.filter(filter_space)
+    "_ 1 _".toList.filter(filter_space),
+    "_ X _".toList.filter(filter_space),
+    "_ 2 _".toList.filter(filter_space),
+    "_ _ 2".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space)
   )
 
   val simple_solved_board: Matrix = List(
@@ -122,13 +136,13 @@ object solver extends App {
   def check_placement(board: Matrix, pos: Position): Boolean = {
     // Checks for a light in a positive direction for x, y pos
     // if light is found then returns early with false to avoid checking in negative direction
-    lazy val positiveXDir: Boolean = check_list(board(pos.y), pos.x until board.head.length)
-    lazy val positiveYDir: Boolean = check_list(for(a <- board) yield a(pos.x), pos.y until board.length)
+    lazy val positiveXDir: Boolean = check_list(board(pos.row), pos.col until board.head.length)
+    lazy val positiveYDir: Boolean = check_list(for(a <- board) yield a(pos.col), pos.row until board.length)
     if (!(positiveXDir && positiveYDir)) return false
 
     // Checks for a light in a negative direction for x, y pos
-    lazy val negativeXDir: Boolean = check_list(board(pos.y), (0 until pos.x).reverse)
-    lazy val negativeYDir: Boolean = check_list(for(a <- board) yield a(pos.x), (0 until pos.y).reverse)
+    lazy val negativeXDir: Boolean = check_list(board(pos.row), (0 until pos.col).reverse)
+    lazy val negativeYDir: Boolean = check_list(for(a <- board) yield a(pos.col), (0 until pos.row).reverse)
     return negativeXDir && negativeYDir
   }
 
@@ -137,18 +151,19 @@ object solver extends App {
    */
   // TODO: Use position class
   def place_light(board: Matrix, pos: Position): Option[Matrix] = {
-    if (!check_tile_for_Empty(board(pos.y)(pos.x))) return None
+    // println("X: " + pos.col + " Y: " + pos.row)
+    if (!check_tile_for_Empty(board(pos.row)(pos.col))) return None
 
     val adjacent_numbers = check_adjacent(board, pos, check_tile_if_num)
     for (num <- adjacent_numbers) {
       val nr_of_light = get_number_of_lights_around_number(board, num)
-      if (nr_of_light >= board(num.y)(num.x).asDigit)
+      if (nr_of_light >= board(num.row)(num.row).asDigit)
         return None
     }
 
 
     if (check_placement(board, pos)) {
-      val newBoard = board.updated(pos.y, board(pos.y).updated(pos.x, Light))
+      val newBoard = board.updated(pos.row, board(pos.row).updated(pos.col, Light))
       return Option(newBoard)
     } else
       return None
@@ -161,18 +176,18 @@ object solver extends App {
     val positions = new ListBuffer[Position]()
 
     // TODO: improve this by making it more functional
-    if (!(pos.x - 1 < 0) && condition(board(pos.y)(pos.x - 1)))
-      positions += new Position(pos.x - 1, pos.y)
-
-    if (!(pos.x + 1 > board.head.length - 1) && condition(board(pos.y)(pos.x + 1)))
-      positions += new Position(pos.x + 1, pos.y)
-
-    if (!(pos.y - 1 < 0) && condition(board(pos.y - 1)(pos.x)))
-      positions += new Position(pos.x, pos.y - 1)
-
-    if (!(pos.y + 1 > board.length - 1) && condition(board(pos.y + 1)(pos.x)))
-      positions += new Position(pos.x, pos.y + 1)
-
+    // Check Left cell
+    if (!(pos.col - 1 < 0) && condition(board(pos.row)(pos.col - 1)))
+      positions += new Position(pos.row, pos.col - 1)
+    // Check Right Cell
+    if (!(pos.col + 1 > board.head.length - 1) && condition(board(pos.row)(pos.col + 1)))
+      positions += new Position(pos.row, pos.col + 1)
+    // Check Top Cell
+    if (!(pos.row - 1 < 0) && condition(board(pos.row - 1)(pos.col)))
+      positions += new Position(pos.row - 1, pos.col)
+    // Check Bottom Cell
+    if (!(pos.row + 1 > board.length - 1) && condition(board(pos.row + 1)(pos.col)))
+      positions += new Position(pos.row + 1, pos.col)
     return positions.toList
   }
 
@@ -183,20 +198,20 @@ object solver extends App {
   /** Checks the puzzle is solved
    *  Doesn't check if lights are placed incorrectly */
   def check_if_solved(board: Matrix): Boolean = {
-    for (y <- board.indices;
-         x <- board.head.indices)
+    for (row <- board.indices;
+         col <- board.head.indices)
     {
-      if (board(y)(x) != Wall) {
-        if (check_tile_if_num(board(y)(x))) {
+      if (board(row)(col) != Wall) {
+        if (check_tile_if_num(board(row)(col))) {
           // Checks if correct num if lights are adjacent to number wall
-          val nr_of_light = get_number_of_lights_around_number(board, new Position(x,y))
+          val nr_of_light = get_number_of_lights_around_number(board, new Position(row,col))
 
-          if (!(nr_of_light == board(y)(x).asDigit))
+          if (!(nr_of_light == board(row)(col).asDigit))
             return false
 
         } else {
           // Check if that there is a light on current square and returns false it not.
-          if (check_placement(board, new Position(x,y))) return false
+          if (check_placement(board, new Position(row,col))) return false
         }
       }
     }
@@ -204,26 +219,50 @@ object solver extends App {
     return true
   }
 
-  
-  def place_next(board:Matrix): Option[Position] = {
-  (for
-    {
+  /** Finds all possible candidates
+  * Returned list is sorted by numbered walls as they are more difficult to solve
+   */
+  // TODO: Find numbered walls first, append empty positions first, start with walls=4..1
+   def find_candidates(board:Matrix): List[Position] = {
+   (for
+     {
+       row <- board.indices;
+       col <- board.head.indices
+       if(check_tile_for_Empty(board(row)(col)))
+     } yield new Position(row,col)).toList
+   }
+ 
+  def backtracking(board: Matrix, candidates: List[Position]): Boolean = {
+
+    printer(board)
+    println("Candidates: " + candidates)
+    
+    // Check if finished
+    if (check_if_solved(board)) {
+      return true
+    }    
+   // Check if solvable
+   if (candidates.isEmpty) {
+     return false
+   }
+
+    for (pos <- candidates) {
+      val newBoard: Option[Matrix] = place_light(board, pos)
+      val temp = candidates.filterNot(p => p == pos)
+      if(newBoard != None) {
+        if (backtracking(newBoard.get, temp)) return true
+      } else {
+        if (backtracking(board, temp)) return true
+        }
+    }
+    return false
+  }
+
+  def printer(board:Matrix) = {
+    for (
       y <- board.indices;
       x <- board.head.indices
-      if(check_tile_for_Empty(board(y)(x)))
-    } yield new Position(y,x)).headOption
+    // ){println("y: " + y + " " + "x:" + x + " Value: " + board(y)(x))}
+    ){println(board(y))}
   }
- 
-  def backtracking(board: Matrix, pos: Position): Boolean = {
-
-    // Done?
-    if (pos.x == board.head.length && pos.y == board.length) { // If last position on board
-      return check_if_solved(board)
-    }
-    // Promising
-    //place_light(board, pos.x, pos.y)
-    // Next 
-    return false
-  } 
-  
 }
