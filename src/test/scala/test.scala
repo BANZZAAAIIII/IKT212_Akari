@@ -22,49 +22,45 @@ class PlaceLightTests extends FunSuite {
   )
 
   test("TestValidPlacement.PuzzleSolver") {
-    val x = 2
-    val y = 0
+    var pos = new Position(2, 0)
 
-    solver.place_light(test_board, x, y) match {
-      case Some(b) => assert(b(y)(x) == Light)
+    solver.place_light(test_board, pos) match {
+      case Some(b) => assert(b(pos.y)(pos.x) == Light)
       case None    => fail("This move should place a light")
     }
   }
 
   test("TestValidPlacement02.PuzzleSolver") {
-    val x = 0
-    val y = 2
+    var pos = new Position(0, 2)
 
-    solver.place_light(test_board, x, y) match {
-      case Some(b) => assert(b(y)(x) == Light)
+    solver.place_light(test_board, pos) match {
+      case Some(b) => assert(b(pos.y)(pos.x) == Light)
       case None    => fail("This move should place a light")
     }
   }
 
   test("TestValidPlacementRow13.PuzzleSolver") {
-    val x = 1
-    val y = 3
+    var pos = new Position(1, 3)
 
-    solver.place_light(test_board, x, y) match {
-      case Some(b) => assert(b(y)(x) == Light)
+    solver.place_light(test_board, pos) match {
+      case Some(b) => assert(b(pos.y)(pos.x) == Light)
       case None    => fail("This move should place a light")
     }
   }
 
   test("TestValidPlacementRow24.PuzzleSolver") {
-    val x = 2
-    val y = 4
+    var pos = new Position(2, 4)
 
-    solver.place_light(test_board, x, y) match {
-      case Some(b) => assert(b(y)(x) == Light)
+    solver.place_light(test_board, pos) match {
+      case Some(b) => assert(b(pos.y)(pos.x) == Light)
       case None    => fail("This move should place a light")
     }
   }
 
   test("TestInvalidPlacement22.PuzzleSolver") {
-    val x = 2
-    val y = 2
-    solver.place_light(test_board, x, y) match {
+    var pos = new Position(2, 2)
+
+    solver.place_light(test_board, pos) match {
       case Some(_) => fail("This move shouldn't be legal")
       case None    => succeed
     }
@@ -99,14 +95,14 @@ class CheckListTests extends FunSuite {
 
 class CheckSolvedTests extends FunSuite {
   import solver.filter_space
-  val simple_solved_board: List[List[Char]] = List(
+  val simple_solved_board: Matrix = List(
     "_ * _ _".toList.filter(filter_space),
     "_ _ X _".toList.filter(filter_space),
     "_ _ * _".toList.filter(filter_space),
     "* _ X *".toList.filter(filter_space)
   )
 
-  val simple_solved_board_numbers: List[List[Char]] = List(
+  val simple_solved_board_numbers: Matrix = List(
     "1 * _ X".toList.filter(filter_space),
     "_ _ 1 _".toList.filter(filter_space),
     "_ _ * _".toList.filter(filter_space),
