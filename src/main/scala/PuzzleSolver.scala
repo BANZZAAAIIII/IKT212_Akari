@@ -15,10 +15,7 @@ object PuzzleSolver extends App{
   val simple_board: Matrix = List(
     "_ 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
-    "_ 2 _".toList.filter(filter_space),
-    "_ _ 2".toList.filter(filter_space),
-    "_ _ _".toList.filter(filter_space),
-    "_ _ _".toList.filter(filter_space)
+    "_ 1 _".toList.filter(filter_space)
   )
   // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
@@ -65,7 +62,7 @@ object PuzzleSolver extends App{
 
   val numPuzzles = getNumPuzzles // Holds number of puzzles in file 1
 
-  // Looper til antall puzzles, henter puzzle fra en liste, løser puzzle, skrivr puzzle til fil
+  // Looper til antall puzzles, henter puzzle fra en liste, løser puzzle, skriver puzzle til fil
   for (count<- 0 until numPuzzles) {
     println("Solving puzzle #"+(count+1).toString)
     putSolution(solve(getPuzzle(count)))
@@ -149,7 +146,6 @@ object solver extends App {
   /** Places a light on a x, y position if the tile is valid.
    *  Returns None if placement is illegal or a new board if not
    */
-  // TODO: Use position class
   def place_light(board: Matrix, pos: Position): Option[Matrix] = {
     // println("X: " + pos.col + " Y: " + pos.row)
     if (!check_tile_for_Empty(board(pos.row)(pos.col))) return None
@@ -157,10 +153,9 @@ object solver extends App {
     val adjacent_numbers = check_adjacent(board, pos, check_tile_if_num)
     for (num <- adjacent_numbers) {
       val nr_of_light = get_number_of_lights_around_number(board, num)
-      if (nr_of_light >= board(num.row)(num.row).asDigit)
+      if (nr_of_light >= board(num.row)(num.col).asDigit)
         return None
     }
-
 
     if (check_placement(board, pos)) {
       val newBoard = board.updated(pos.row, board(pos.row).updated(pos.col, Light))
@@ -179,15 +174,19 @@ object solver extends App {
     // Check Left cell
     if (!(pos.col - 1 < 0) && condition(board(pos.row)(pos.col - 1)))
       positions += new Position(pos.row, pos.col - 1)
+
     // Check Right Cell
     if (!(pos.col + 1 > board.head.length - 1) && condition(board(pos.row)(pos.col + 1)))
       positions += new Position(pos.row, pos.col + 1)
+
     // Check Top Cell
     if (!(pos.row - 1 < 0) && condition(board(pos.row - 1)(pos.col)))
       positions += new Position(pos.row - 1, pos.col)
+
     // Check Bottom Cell
     if (!(pos.row + 1 > board.length - 1) && condition(board(pos.row + 1)(pos.col)))
       positions += new Position(pos.row + 1, pos.col)
+
     return positions.toList
   }
 
@@ -234,11 +233,12 @@ object solver extends App {
  
   def backtracking(board: Matrix, candidates: List[Position]): Boolean = {
 
-    printer(board)
-    println("Candidates: " + candidates)
+    // printer(board)
+    // println("Candidates: " + candidates)
     
     // Check if finished
     if (check_if_solved(board)) {
+      printer(board)
       return true
     }    
    // Check if solvable
