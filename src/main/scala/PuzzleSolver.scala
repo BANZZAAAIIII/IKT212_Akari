@@ -70,27 +70,20 @@ object solver extends App {
   def check_tile_for_light(c: Char): Boolean = if (c == Light) true else false
 
   def filter_space(c: Char): Boolean = c != ' '
-  val simple_board_X_44: List[List[Char]] = List(
-    "_ _ X *".toList.filter(filter_space),
-    "2 _ _ X".toList.filter(filter_space),
-    "_ _ * _".toList.filter(filter_space),
+  val simple_board: List[List[Char]] = List(
+    "_ 1 X *".toList.filter(filter_space),
+    "2 _ * X".toList.filter(filter_space),
+    "_ _ _ _".toList.filter(filter_space),
     "_ _ _ _".toList.filter(filter_space)
   )
 
   val simple_solved_board: List[List[Char]] = List(
-    "_ 1 _".toList.filter(filter_space),
+    "_ 1 *".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
     "* 2 _".toList.filter(filter_space),
     "_ * 2".toList.filter(filter_space),
     "_ _ *".toList.filter(filter_space),
     "_ _ _".toList.filter(filter_space)
-  )
-
-  val simple_solved_board_num: List[List[Char]] = List(
-    "_ * _ _".toList.filter(filter_space),
-    "_ _ X _".toList.filter(filter_space),
-    "_ _ * _".toList.filter(filter_space),
-    "* _ 2 *".toList.filter(filter_space)
   )
 
 
@@ -131,11 +124,8 @@ object solver extends App {
   def place_light(board: List[List[Char]], x:Int, y:Int): Option[List[List[Char]]] = {
     if (!check_tile_for_Empty(board(y)(x))) return None
 
-    // TODO: Check if adjacent to number square and check square for number for adjacent lights
-    // Creat mutable list of list with xy of adjacent number squares
-    // Check nr of light on each item(xy position) in list
-    val adjacent_num_pos = check_adjacent(board, x, y, check_tile_if_num)
-    for (num <- adjacent_num_pos) {
+    val adjacent_numbers = check_adjacent(board, x, y, check_tile_if_num)
+    for (num <- adjacent_numbers) {
       val nr_of_light = get_number_of_lights_around_number(board, num.head, num.last)
       if (nr_of_light == board(num.last)(num.head).asDigit)
         return None
@@ -149,36 +139,34 @@ object solver extends App {
       return None
   }
 
-
-  def check_adjacent(board: List[List[Char]], x: Int, y: Int,
-                     condition: Char => Boolean
-                    ): List[List[Int]] = {
-    val pos = new ListBuffer[List[Int]]()
+  /** Checks all valid positions adjacent to x, y pos on board.
+   *  Takes a functions, condition: Char => Boolean, to check adjacent squares.
+   *  Returns all x, y positions where condition is true */
+  def check_adjacent(board: List[List[Char]], x: Int, y: Int, condition: Char => Boolean): List[List[Int]] = {
+    val positions = new ListBuffer[List[Int]]()
 
     // TODO: improve this by making it more functional
-    if (!(x - 1 < 0))
-      if (condition(board(y)(x - 1)))
-        pos += List(x - 1, y)
+    if (!(x - 1 < 0) && condition(board(y)(x - 1)))
+      positions += List(x - 1, y)
 
-    if (!(x + 1 > board.head.length - 1 ))
-      if (condition(board(y)(x + 1)))
-        pos += List(x + 1, y)
+    if (!(x + 1 > board.head.length - 1) && condition(board(y)(x + 1)))
+      positions += List(x + 1, y)
 
-    if (!(y - 1 < 0))
-      if (condition(board(y - 1)(x)))
-        pos += List(x, y - 1)
+    if (!(y - 1 < 0) && condition(board(y - 1)(x)))
+      positions += List(x, y - 1)
 
-    if (!(y + 1 > board.length - 1))
-      if (condition(board(y + 1)(x)))
-        pos += List(x, y + 1)
+    if (!(y + 1 > board.length - 1) && condition(board(y + 1)(x)))
+      positions += List(x, y + 1)
 
-    return pos.toList
+    return positions.toList
   }
+
+  /** Gets number of lights adjacent to a square */
   def get_number_of_lights_around_number(board: List[List[Char]], x: Int, y: Int): Int =
     check_adjacent(board, x, y, check_tile_for_light).length
 
   /** Checks the puzzle is solved
-   *  Dos not check if lights are placed incorrectly   */
+   *  Doesn't check if lights are placed incorrectly */
   def check_if_solved(board: List[List[Char]]): Boolean = {
     for (y <- board.indices;
          x <- board.head.indices)
@@ -202,9 +190,9 @@ object solver extends App {
   }
 
   // usage example
-  val x = 2
-  val y = 2
-  place_light(simple_solved_board, x, y) match {
+  val x = 0
+  val y = 0
+  place_light(simple_board, x, y) match {
     case Some(b) => print_board(b)
     case None    => println("Illegal move")
   }
