@@ -70,6 +70,7 @@ class PlaceLightTests extends FunSuite {
 class CheckAdjacentTests extends FunSuite {
   import solver.filter_space
   import solver.check_tile_if_num
+  import solver.check_tile_for_light
   val test_board: List[List[Char]] = List(
     "_ 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
@@ -113,6 +114,14 @@ class CheckAdjacentTests extends FunSuite {
     val pos = new Position(0,2)
     Option(solver.check_adjacent(test_board, pos, check_tile_if_num)) match {
     case Some(b) => assert(b(0) == Position(0, 1))
+    case None => fail
+    }
+  }
+
+  test("TestAdjacentWall.PuzzleSolver") {
+    val pos = new Position(2,2)
+    Option(solver.check_adjacent(test_board, pos, check_tile_for_light)) match {
+    case Some(b) => assert(b.isEmpty)
     case None => fail
     }
   }
