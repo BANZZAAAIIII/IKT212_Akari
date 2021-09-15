@@ -232,37 +232,27 @@ object solver extends App {
    }
  
   def backtracking(board: Matrix, candidates: List[Position]): Boolean = {
-
     // printer(board)
     // println("Candidates: " + candidates)
-    
-    // Check if finished
-    if (check_if_solved(board)) {
-      printer(board)
-      return true
-    }    
+
    // Check if solvable
    if (candidates.isEmpty) {
+     // Check if finished
+     if (check_if_solved(board)) {
+       print_board(board)
+       return true
+     }
      return false
    }
 
     for (pos <- candidates) {
-      val newBoard: Option[Matrix] = place_light(board, pos)
       val temp = candidates.filterNot(p => p == pos)
-      if(newBoard != None) {
-        if (backtracking(newBoard.get, temp)) return true
-      } else {
-        if (backtracking(board, temp)) return true
-        }
+      place_light(board, pos) match {
+        case Some(newBoard) => if (backtracking(newBoard, temp)) return true
+        case None           => if (backtracking(board, temp)) return true
+      }
     }
-    return false
-  }
 
-  def printer(board:Matrix) = {
-    for (
-      y <- board.indices;
-      x <- board.head.indices
-    // ){println("y: " + y + " " + "x:" + x + " Value: " + board(y)(x))}
-    ){println(board(y))}
+    return false
   }
 }
