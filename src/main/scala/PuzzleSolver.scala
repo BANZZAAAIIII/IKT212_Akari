@@ -4,6 +4,7 @@
 
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution}
 import com.akari.types._
+import stopwatch.Stopwatch
 
 import scala.::
 import scala.collection.mutable.ListBuffer
@@ -15,15 +16,23 @@ object PuzzleSolver extends App{
   val simple_board: Matrix = List(
     "_ 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
-    "_ 1 _".toList.filter(filter_space)
+    "_ 2 _".toList.filter(filter_space),
+    "_ _ 2".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space)
   )
   // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
-
+    val timer = new Stopwatch() // Use to take realtime
     // Herusitic tricks
-    
+    timer.start()
     val temp = solver.backtracking(simple_board, solver.find_candidates(simple_board))
+    timer.stop()
+
+    // Prints
     println(temp)
+    println("Promising: " + solver.promising + "\n" + "Visited: " + solver.visited)
+    println("Time: " + timer.stop.getElapsedTime())
 
     // println(solver.find_candidates(simple_board))
     // Backtracking
@@ -73,6 +82,9 @@ object PuzzleSolver extends App{
 }
 
 object solver extends App {
+  var visited = 0
+  var promising = 0
+
   def print_board(a: Matrix): Unit = {
     a.foreach(y => {
       y.foreach(x => print(x + " "))
@@ -235,17 +247,25 @@ object solver extends App {
     // printer(board)
     // println("Candidates: " + candidates)
 
+    // Check if finished
+    if (check_if_solved(board)) {
+      print_board(board)
+      return true
+    }
+
+    // This node is visited
+    visited += 1
+
    // Check if solvable
    if (candidates.isEmpty) {
-     // Check if finished
-     if (check_if_solved(board)) {
-       print_board(board)
-       return true
-     }
      return false
    }
 
     for (pos <- candidates) {
+      // Check if this node is promising
+      promising += 1
+
+      // Remove candidates
       val temp = candidates.filterNot(p => p == pos)
       place_light(board, pos) match {
         case Some(newBoard) => if (backtracking(newBoard, temp)) return true
