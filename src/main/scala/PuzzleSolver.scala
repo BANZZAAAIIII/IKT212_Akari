@@ -21,6 +21,16 @@ object PuzzleSolver extends App{
     "_ _ _".toList.filter(filter_space),
     "_ _ _".toList.filter(filter_space)
   )
+
+  val board7x7: Matrix = List(
+      "_ _ _ _ _ _ _".toList.filter(filter_space),
+      "2 _ _ _ _ _ _".toList.filter(filter_space),
+      "* 1 _ 2 0 _ _".toList.filter(filter_space),
+      "X _ _ _ _ _ _".toList.filter(filter_space),
+      "X _ _ _ _ _ _".toList.filter(filter_space),
+      "_ _ _ _ _ 0 _".toList.filter(filter_space),
+      "2 _ X _ _ _ _".toList.filter(filter_space)
+      )
   // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
     val timer = new Stopwatch() // Use to take realtime
@@ -253,8 +263,9 @@ object solver extends App {
     // printer(board)
     // println("Candidates: " + candidates)
 
-    // Check if finished
+      // Check if finished
     if (check_if_solved(board)) {
+      println("Candidates: " + candidates)
       print_board(board)
       return true
     }
@@ -263,19 +274,18 @@ object solver extends App {
     visited += 1
 
    // Check if solvable
-   if (candidates.isEmpty) {
+    if (candidates.isEmpty) {
      return false
    }
 
-    for (pos <- candidates) {
+    for (light <- candidates) {
       // Check if this node is promising
       promising += 1
 
-      // Remove candidates
-      val temp = candidates.filterNot(p => p == pos)
-      place_light(board, pos) match {
-        case Some(newBoard) => if (backtracking(newBoard, temp)) return true
-        case None           => if (backtracking(board, temp)) return true
+      // Attempt placing a light
+      place_light(board, light) match {
+        case Some(newBoard) => if (backtracking(newBoard, filter_litup(board, candidates, light))) return true
+        case None           => if (backtracking(board, candidates.filterNot(p => p == light))) return true
       }
     }
 
@@ -283,27 +293,19 @@ object solver extends App {
   }
 
   // Filter out empty spaces from candidates that are lit up
-  def filter_empty(board: Matrix, candidates: List[Position], light:Position): List[Position] = {
-    val walls = find_tiles(board, check_tile_if_wall)
-    val row_positions = candidates.filter(tile =>  // Check if tile and light is on the same row
-      (check_wall_between_tiles(board, tile, light))
+  def filter_litup(board: Matrix, candidates: List[Position], light:Position): List[Position] = {
+    return candidates.filterNot(tile =>  
+      tile.row == light.row && // Check if tile and light is on the same row
+      !(check_wall_between_tiles(board, tile, light)) || // Check if there is a wall between tile and light
+      tile.col == light.col && // Check if the tile and light is on the same column
+      !(check_wall_between_tiles_two(board, tile, light)) // Check if there is a wall between tile and light
     )
-    val col_positions = candidates.filter(tile => 
-      (check_wall_between_tiles_two(board, tile, light))
-    )
-
-
-    println("Candidates:" + candidates)
-    println("Filter row: " + row_positions)
-    println("Filter columns: " + col_positions)
-    println("Walls: " + walls)
-
-    return row_positions ::: col_positions
   }
 
   /** Finds walls between two given positions on a board
     * Returns false if a wall is found, if no wall is find returns true
     */
+    // TODO: Combine these to one function, tried to transpose board, is promising but require further tweaks
   def check_wall_between_tiles(board: Matrix, tile: Position, light: Position): Boolean= {
     val walls = find_tiles(board, check_tile_if_wall) // Get all the walls in board
     walls.find(wall =>  wall.row == light.row && // Get walls on the same row as the tile given
