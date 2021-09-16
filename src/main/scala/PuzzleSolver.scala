@@ -26,7 +26,7 @@ object PuzzleSolver extends App{
     val timer = new Stopwatch() // Use to take realtime
     // Herusitic tricks
     timer.start()
-    val temp = solver.backtracking(simple_board, solver.find_candidates(simple_board))
+    val temp = solver.backtracking(simple_board, solver.find_tiles(simple_board, solver.check_tile_for_Empty))
     timer.stop()
 
     // Prints
@@ -95,6 +95,12 @@ object solver extends App {
   /** Returns true if the tile has any number/constraint */
   def check_tile_if_num(c: Char): Boolean = c match {
     case One | Two | Three | Four  => true
+    case _ => false
+  }
+
+  def check_tile_if_wall(c: Char): Boolean = c match {
+    case One | Two | Three | Four  => true // TODO: Check if we can use check_tile_if_num here instead of duplicate
+    case Wall => true
     case _ => false
   }
 
@@ -234,12 +240,12 @@ object solver extends App {
   * Returned list is sorted by numbered walls as they are more difficult to solve
    */
   // TODO: Find numbered walls first, append empty positions first, start with walls=4..1
-   def find_candidates(board:Matrix): List[Position] = {
+   def find_tiles(board:Matrix, condition: Char => Boolean): List[Position] = {
    (for
      {
        row <- board.indices;
        col <- board.head.indices
-       if(check_tile_for_Empty(board(row)(col)))
+       if(condition(board(row)(col)))
      } yield new Position(row,col)).toList
    }
  
@@ -275,4 +281,48 @@ object solver extends App {
 
     return false
   }
+
+  // Filter out empty spaces from candidates that are lit up
+  def filter_empty(board: Matrix, candidates: List[Position], light:Position): List[Position] = {
+    val walls = find_tiles(board, check_tile_if_wall)
+    val row_positions = candidates.filter(tile =>  // Check if tile and light is on the same row
+      (check_wall_between_tiles(board, tile, light))
+    )
+    val col_positions = candidates.filter(tile => 
+      (check_wall_between_tiles_two(board, tile, light))
+    )
+
+
+    println("Candidates:" + candidates)
+    println("Filter row: " + row_positions)
+    println("Filter columns: " + col_positions)
+    println("Walls: " + walls)
+
+    return row_positions ::: col_positions
+  }
+
+  /** Finds walls between two given positions on a board
+    * Returns false if a wall is found, if no wall is find returns true
+    */
+  def check_wall_between_tiles(board: Matrix, tile: Position, light: Position): Boolean= {
+    val walls = find_tiles(board, check_tile_if_wall) // Get all the walls in board
+    walls.find(wall =>  wall.row == light.row && // Get walls on the same row as the tile given
+      ((wall.col > light.col && wall.col < tile.col) || // Check to the right of light and left of tile
+      (wall.col < light.col && wall.col > tile.col))    // Check to the left of light and right of tile
+    ) match {
+      case Some(_) => return true // A wall as found
+      case None => return false // No wall found
+    }
+  }
+
+  def check_wall_between_tiles_two(board: Matrix, tile: Position, light: Position): Boolean= {
+      val walls = find_tiles(board, check_tile_if_wall) // Get all the walls in board
+      walls.find(wall =>  wall.col == light.col        &&  // Get walls on the same row as the tile given
+        ((wall.row > light.row && wall.row < tile.row) || // Check if wall position is to the right of light and left of tile
+        (wall.row < light.row && wall.row > tile.row))    // Check if wall position is to the left of light and right of tile
+      ) match {
+        case Some(_) => return true
+        case None => return false
+      }
+    }
 }

@@ -22,4 +22,5 @@ class Puzzle(x: Int, y: Int, _id: String, _difficulty: Int, _symmetry: Int, _bla
   def printBoard = {
     board.foreach(s => println(s.mkString))
   }
+
 }

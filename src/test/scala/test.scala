@@ -177,3 +177,65 @@ class CheckSolvedTests extends FunSuite {
   }
 }
 
+class CheckFilterEmptyTests extends FunSuite {
+  import solver.filter_space
+  val test_board: List[List[Char]] = List(
+    "* 1 _".toList.filter(filter_space),
+    "_ X _".toList.filter(filter_space),
+    "_ 2 _".toList.filter(filter_space),
+    "_ _ 2".toList.filter(filter_space),
+    "X * _".toList.filter(filter_space), // TODO: Add test to see if empty spaces are removed when pos=(4,1) is used
+    "_ _ _".toList.filter(filter_space)
+  )
+
+  val candidates: List[Position] = List(Position(0,0), Position(0,2), Position(1,0), Position(1,2), Position(2,0), Position(2,2), Position(3,0), Position(3,1), Position(4,1), Position(4,2), Position(5,0), Position(5,1), Position(5,2))
+  test("TestCheckIfFilteredOne.PuzzleSolver") {
+    val filtered_candidates: List[Position] = List(Position(0,2), Position(1,2), Position(2,2), Position(3,1), Position(4,1), Position(4,2), Position(5,0), Position(5,1), Position(5,2))
+    val pos: Position = new Position(0,0)
+    solver.filter_empty(test_board, candidates, pos) match {
+      case can:List[Position] => assert(can == filtered_candidates)
+      case _ => fail("Something went wrong")
+    }
+  }
+
+    test("TestCheckIfFilteredTwo.PuzzleSolver") {
+      val filtered_candidates: List[Position] = List(Position(0,0), Position(0,2), Position(1,0), Position(1,2), Position(2,0), Position(2,2), Position(3,0), Position(5,0), Position(5,2))
+      val pos: Position = new Position(4,1)
+      solver.filter_empty(test_board, candidates, pos) match {
+        case can:List[Position] => assert(can == filtered_candidates)
+        case _ => fail("Something went wrong")
+      }
+    }
+
+
+}
+
+class CheckWallBetweenTiles extends FunSuite {
+  import solver.filter_space
+    val test_board: List[List[Char]] = List(
+      "* 1 _".toList.filter(filter_space),
+      "_ X _".toList.filter(filter_space),
+      "_ 2 _".toList.filter(filter_space),
+      "_ _ 2".toList.filter(filter_space),
+      "X * _".toList.filter(filter_space), 
+      "_ _ _".toList.filter(filter_space)
+    )
+
+    test("TestCheckIfWallBetweenOnRowOrColumns.PuzzleSolver") {
+      assert(solver.check_wall_between_tiles(test_board, new Position(0, 2), new Position(0,0)) == true)
+      assert(solver.check_wall_between_tiles(test_board, new Position(0, 0), new Position(0,2)) == true)
+      assert(solver.check_wall_between_tiles_two(test_board, new Position(1, 0), new Position(5,0)) == true)
+      assert(solver.check_wall_between_tiles_two(test_board, new Position(4, 2), new Position(2,2)) == true)
+    }
+
+    test("TestCheckIfNoWallBetweenOnRowOrColumns.PuzzleSolver") {
+      assert(solver.check_wall_between_tiles(test_board, new Position(3, 0), new Position(3,1)) == false)
+      assert(solver.check_wall_between_tiles_two(test_board, new Position(0, 0), new Position(2,0)) == false)
+    }
+
+    test("TestCheckIfTileAndLightAreDifferentRowsAndColumns.PuzzleSolver") {
+      assert(solver.check_wall_between_tiles(test_board, new Position(1, 0), new Position(3,0)) == false)
+      assert(solver.check_wall_between_tiles_two(test_board, new Position(1, 0), new Position(0,2)) == false)
+    }
+}
+
