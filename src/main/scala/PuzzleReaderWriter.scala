@@ -40,26 +40,18 @@ object PuzzleReaderWriter{
   // 4. Read id, size, diff, symm, black_percent, board
   // Impure function as it reads lines from outside of function
   def getPuzzle(index:Int): Puzzle = {
-    val sizeNumbers: Array[String] = lines.filter(_ startsWith("%size"))(index).split(" ").last.split("x")
-    val id: String = lines.filter(_ startsWith("%id"))(index).split(" ").last
-    val difficulty: Int = lines.filter(_ startsWith("%difficulty"))(index).split(" ").last.toInt
-    val symmetry: Int = lines.filter(_ startsWith("%symmetry"))(index).split(" ").last.toInt
-    val black_percent = lines.filter(_ startsWith("%black_percent"))(index).split(" ").last.toInt
-    
+    val sizeNumbers: Array[String] = lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
+   
     // Identify puzzly by ID
-    val indexId: Int = lines.indexOf(lines.filter(_ startsWith("%id"))(index))    
-    val board: Matrix = getRows(indexId, Array.ofDim[Char](sizeNumbers.last.toInt, sizeNumbers(0).toInt)).map(_.toList).toList // TODO: ???
+    val board: Matrix = getRows(Array.ofDim[Char](sizeNumbers.last.toInt, sizeNumbers(0).toInt)).map(_.toList).toList // TODO: ???
     
     
     return new Puzzle(
       sizeNumbers(0).toInt,
       sizeNumbers.last.toInt,
-      id,
-      difficulty,
-      symmetry,
-      black_percent,
       "",
-      board)
+      board
+      )
   }
 
   def putSolution(puzzle: Puzzle): Unit = {
@@ -73,11 +65,11 @@ object PuzzleReaderWriter{
 
   // TODO: Make more functional with creating new board
   // Recursivly returns a board with the added row
-  private def getRows(indexId:Int, board: Array[Array[Char]], i:Int = 0): Array[Array[Char]] = {
+  private def getRows(board: Array[Array[Char]], i:Int = 0): Array[Array[Char]] = {
     if(i < board.size) {
-      board(i) = lines((indexId + 4 + i)).toArray
+      board(i) = lines((i + 2)).toArray
       val y = i + 1 // TODO: Can this be done better in scala?
-      getRows(indexId, board, y)
+      getRows(board, y)
     }
     return board
   }

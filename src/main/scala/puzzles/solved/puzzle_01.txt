@@ -1,9 +1,3 @@
-puzzles 4
-size 14x6
-
-size 25x10
-
-size 14x4
-
-size 13x9
+puzzles 1
+size 8x4
 
