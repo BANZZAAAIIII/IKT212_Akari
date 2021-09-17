@@ -1,77 +1,31 @@
 import java.io.FileWriter
 import scala.io._
-
 import com.akari.types._
 
-
-// TODO: Look at currying/partial functions
 object PuzzleReaderWriter{
-  var unsolvedFile:String="";
-  var solvedFile:String="";
-  var lines:List[String]=Nil; // Parameterize.
-  var fw:FileWriter=null;
 
-  // TODO: Wrap functino in IO tag to better signal that this is an impure function
-  // IO is impure as you need to read/write to files outside of the function/interact with the outside
-  def initRW(infile:String, outfile:String): Unit ={ // Initiate read write process
-    unsolvedFile = infile
-    solvedFile = outfile
-    lines = Source.fromFile(unsolvedFile).getLines().toList
-    fw = new FileWriter(solvedFile, false)
-  }
-
-  // Gets the number of puzzles in file from first line in the file
-  def getNumPuzzles: Int = {
-    val countPuzzles = lines(0).split(" ").last.toInt
-    // writing number of puzzles into solution
-    fw.write("puzzles " + countPuzzles.toString+"\n")
-    return countPuzzles
-  }
-
-  // Read size of puzzle, then read puzzle lines
-  // Filter items such that only ex: size is left and the index placement will correspond to index puzzle item
-  // TODO: Reduce number of operations to one filter read all meta data?
-  // TODO: Read board data
-  // TODO: Directly extraxt sizeNumbers as an Int array instead
-  // TODO: Create a function that filters lines on input string
-  // 1. Filter on ID
-  // 2. Filter out that above
-  // 3. Filter out that below
-  // 4. Read id, size, diff, symm, black_percent, board
-  // Impure function as it reads lines from outside of function
-  def getPuzzle(index:Int): Puzzle = {
-    val sizeNumbers: Array[String] = lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
-   
-    // Identify puzzly by ID
-    val board: Matrix = getRows(Array.ofDim[Char](sizeNumbers.last.toInt, sizeNumbers(0).toInt)).map(_.toList).toList // TODO: ???
-    
-    
+    /**
+    * Reads a puzzle from file
+    */
+  def getPuzzle(infile: String): Puzzle = {
+    val lines = Source.fromFile(infile).getLines().toList
+    val sizeNumbers: Array[String] = lines.filter(_ startsWith("size"))(0).split(" ").last.split("x") // Get the sizes
+    val board: Matrix = lines.slice(2, sizeNumbers.last.toInt + 2).map(_.toList)                            // Get the puzzle
     return new Puzzle(
-      sizeNumbers(0).toInt,
-      sizeNumbers.last.toInt,
-      "",
-      board
+      sizeNumbers(0).toInt,   // Columns
+      sizeNumbers.last.toInt, // Rows
+      "",                     // Solution
+      board                   // Board
       )
   }
-
-  def putSolution(puzzle: Puzzle): Unit = {
-    fw.write("size " + puzzle.sizeX + "x" + puzzle.sizeY + "\n")
-    fw.write(puzzle.solution + "\n")
+  /**
+    *  Writes a puzzle to a given file
+    */
+  def putSolution(outfile:String, puzzle: Puzzle): Unit = { 
+    val fw = new FileWriter(outfile, false)                       // Open file
+    fw.write("puzzles 1\n")                                       // Cheating to simplify code, as we do not need to read or write more than one puzzle per file
+    fw.write("size " + puzzle.sizeX + "x" + puzzle.sizeY + "\n")  // Write the size
+    fw.write(puzzle.solution + "\n")                              // Write the puzzle
+    fw.close                                                    // Close the file
   }
-
-  def closing(): Unit = {
-    fw.close()
-  }
-
-  // TODO: Make more functional with creating new board
-  // Recursivly returns a board with the added row
-  private def getRows(board: Array[Array[Char]], i:Int = 0): Array[Array[Char]] = {
-    if(i < board.size) {
-      board(i) = lines((i + 2)).toArray
-      val y = i + 1 // TODO: Can this be done better in scala?
-      getRows(board, y)
-    }
-    return board
-  }
-
 }
