@@ -1,14 +1,11 @@
-/**
-  *   TODO: Make a dictionary "x" = x, "y" = y
-  */
-
-import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution}
-import com.akari.types._
-import stopwatch.Stopwatch
-
+import PuzzleReaderWriter.{getPuzzle, putSolution}
 import scala.::
 import scala.collection.mutable.ListBuffer
 import scala.collection.immutable.HashMap
+
+// Our files
+import com.akari.types._
+import stopwatch.Stopwatch
 
 object PuzzleSolver extends App{
 
@@ -77,18 +74,7 @@ object PuzzleSolver extends App{
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.solution, puzzle.board)
   }
 
-  initRW(args(0),args(1)) // read argument, file 1 is file containing puzzles, file 2 is file to write solutions
-
-  val numPuzzles = getNumPuzzles // Holds number of puzzles in file 1
-
-  // Looper til antall puzzles, henter puzzle fra en liste, løser puzzle, skriver puzzle til fil
-  for (count<- 0 until numPuzzles) {
-    println("Solving puzzle #"+(count+1).toString)
-    putSolution(solve(getPuzzle(count)))
-  }
-
-  println("Processed " + numPuzzles.toString + " puzzles.")
-  closing()
+    putSolution(args(1), solve(getPuzzle(args(0))))
 }
 
 object solver extends App {
