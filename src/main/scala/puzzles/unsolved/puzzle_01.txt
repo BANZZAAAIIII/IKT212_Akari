@@ -1,50 +1,6 @@
-%puzzles 4
-%size 14x6
-%id 14x6:firstPuzzle
-%difficulty 1
-%symmetry 0
-%black_percent 40
-Puzzle_1_Line1
-Puzzle_1_Line2
-Puzzle_1_Line3
-Puzzle_1_Line4
-Puzzle_1_Line5
-Puzzle_1_Line6
-%size 25x10
-%id 10x15:SecondPuzzle
-%difficulty 1
-%symmetry 0
-%black_percent 40
-Puzzle_2_Line1_ExtraCharss
-Puzzle_2_Line2_ExtraCharss
-Puzzle_2_Line3_ExtraCharss
-Puzzle_2_Line4_ExtraCharss
-Puzzle_2_Line5_ExtraCharss
-Puzzle_2_Line6_ExtraCharss
-Puzzle_2_Line7_ExtraCharss
-Puzzle_2_Line8_ExtraCharss
-Puzzle_2_Line9_ExtraCharss
-Puzzle_2_Line10_ExtraChars
-%size 14x4
-%id 14x4:thirdPuzzle
-%difficulty 1
-%symmetry 0
-%black_percent 40
-Puzzle_3_Line1
-Puzzle_3_Line2
-Puzzle_3_Line3
-Puzzle_3_Line4
-%size 13x9
-%id 13x9:1cBBBdBBbBa1b1B1b0cBBcB0d1BbBa1eBaB01bBd0fB1aBBBB001d0a0bBBb11aBBc3a0g1d
-%difficulty 1
-%symmetry 0
-%black_percent 40
-1___XXX____XX
-__X_1__1X1__0
-___XX___X0___
-_1X__X_1_____
-X_X01__X____0
-______X1_XXXX
-001____0_0__X
-X__11_XX___3_
-0_______1____
+puzzles 1
+size 8x4
+X0__2__X
+___1_1__
+_0______
+_X1__XXX
