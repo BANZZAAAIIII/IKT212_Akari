@@ -1,4 +1,16 @@
+
 import PuzzleReaderWriter.{getPuzzle, putSolution}
+
+/**
+  *   TODO: Make a dictionary "x" = x, "y" = y
+  */
+
+
+import com.akari.types._
+import stopwatch.Stopwatch
+
+import java.util.concurrent.locks.Condition
+
 import scala.::
 import scala.collection.mutable.ListBuffer
 import scala.collection.immutable.HashMap
@@ -8,26 +20,6 @@ import com.akari.types._
 import stopwatch.Stopwatch
 
 object PuzzleSolver extends App{
-
-  def filter_space(c: Char): Boolean = c != ' '
-  val simple_board: Matrix = List(
-    "_ 1 _".toList.filter(filter_space),
-    "_ X _".toList.filter(filter_space),
-    "_ 2 _".toList.filter(filter_space),
-    "_ _ 2".toList.filter(filter_space),
-    "_ _ _".toList.filter(filter_space),
-    "_ _ _".toList.filter(filter_space)
-  )
-
-  val board7x7: Matrix = List(
-      "_ _ _ _ _ _ _".toList.filter(filter_space),
-      "2 _ _ _ _ _ _".toList.filter(filter_space),
-      "* 1 _ 2 0 _ _".toList.filter(filter_space),
-      "X _ _ _ _ _ _".toList.filter(filter_space),
-      "X _ _ _ _ _ _".toList.filter(filter_space),
-      "_ _ _ _ _ 0 _".toList.filter(filter_space),
-      "2 _ X _ _ _ _".toList.filter(filter_space)
-      )
   // Solver function
   def solve(puzzle:Puzzle): Puzzle = {
     val timer = new Stopwatch() // Use to take realtime
@@ -79,6 +71,45 @@ object PuzzleSolver extends App{
     putSolution(args(1), solve(getPuzzle(args(0))))
 }
 
+
+object testPuzzleSolver extends App {
+  def filter_space(c: Char): Boolean = c != ' '
+  val simple_board: Matrix = List(
+    "_ 1 _".toList.filter(filter_space),
+    "_ X _".toList.filter(filter_space),
+    "_ 2 _".toList.filter(filter_space),
+    "_ _ 3".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space),
+    "_ _ _".toList.filter(filter_space)
+  )
+
+  val board7x7: Matrix = List(
+    "_ _ _ _ _ _ _".toList.filter(filter_space),
+    "2 _ _ _ _ _ _".toList.filter(filter_space),
+    "_ 1 _ 2 0 _ _".toList.filter(filter_space),
+    "X _ _ _ _ _ _".toList.filter(filter_space),
+    "X _ _ _ _ _ _".toList.filter(filter_space),
+    "_ _ _ _ _ 0 _".toList.filter(filter_space),
+    "2 _ X _ _ _ _".toList.filter(filter_space)
+  )
+
+
+  val timer = new Stopwatch() // Use to take realtime
+  // Herusitic tricks
+//  timer.start()
+//  val temp = solver.backtracking(simple_board, solver.find_tiles(simple_board, solver.check_tile_for_Empty))
+//  timer.stop()
+
+  // Prints
+//  println(temp)
+//  println("Promising: " + solver.promising + "\n" + "Visited: " + solver.visited)
+//  println("Time: " + timer.stop.getElapsedTime())
+
+  // Post processing
+  solver.place_light_deterministic(simple_board)
+
+
+}
 object solver extends App {
   var visited = 0
   var promising = 0
@@ -107,6 +138,10 @@ object solver extends App {
 
   /** Returns true when given a light */
   def check_tile_for_light(c: Char): Boolean = if (c == Light) true else false
+
+  def char_to_board_pos(board: Matrix, pos: Position, condition: Char => Boolean): Boolean = {
+    condition(board(pos.row)(pos.col))
+  }
 
   def filter_space(c: Char): Boolean = c != ' '
   val simple_board: Matrix = List(
@@ -144,8 +179,7 @@ object solver extends App {
   }
 
   /** Checks all sides of a x, y pos for a light.
-   *  Returns true of there is no light on the same row or col blocking
-   */
+   *  Returns true of there is no light on the same row or col blocking */
   def check_placement(board: Matrix, pos: Position): Boolean = {
     // Checks for a light in a positive direction for x, y pos
     // if light is found then returns early with false to avoid checking in negative direction
@@ -160,18 +194,16 @@ object solver extends App {
   }
 
   /** Places a light on a x, y position if the tile is valid.
-   *  Returns None if placement is illegal or a new board if not
-   */
+   *  Returns None if placement is illegal or a new board if not */
   def place_light(board: Matrix, pos: Position): Option[Matrix] = {
     // println("X: " + pos.col + " Y: " + pos.row)
     if (!check_tile_for_Empty(board(pos.row)(pos.col))) return None
 
-    val adjacent_numbers = check_adjacent(board, pos, check_tile_if_num)
-    for (num <- adjacent_numbers) {
+    check_adjacent(board, pos, char_to_board_pos(_:Matrix, _:Position, check_tile_if_num)).foreach( num =>{
       val nr_of_light = get_number_of_lights_around_number(board, num)
       if (nr_of_light >= board(num.row)(num.col).asDigit)
         return None
-    }
+    })
 
     if (check_placement(board, pos)) {
       val newBoard = board.updated(pos.row, board(pos.row).updated(pos.col, Light))
@@ -180,35 +212,46 @@ object solver extends App {
       return None
   }
 
+
+  def get_adjacent(board: Matrix, pos: Position): List[Position] = {
+    val positions = new ListBuffer[Position]()
+    // TODO: Try to improve this by making it more functional
+    // Check Left cell
+    if (!(pos.col - 1 < 0))
+      positions += Position(pos.row, pos.col - 1)
+
+    // Check Right Cell
+    if (!(pos.col + 1 > board.head.length - 1))
+      positions += Position(pos.row, pos.col + 1)
+
+    // Check Bottom Cell
+    if (!(pos.row - 1 < 0))
+      positions += Position(pos.row - 1, pos.col)
+
+    // Check Top Cell
+    if (!(pos.row + 1 > board.length - 1))
+      positions += Position(pos.row + 1, pos.col)
+
+    positions.toList
+  }
+
+
+
   /** Checks all valid positions adjacent to x, y pos on board.
    *  Takes a functions, condition: Char => Boolean, to check adjacent squares.
    *  Returns all x, y positions where condition is true */
-  def check_adjacent(board: Matrix, pos: Position, condition: Char => Boolean): List[Position] = {
+  def check_adjacent(board: Matrix, pos: Position, condition: (Matrix, Position) => Boolean): List[Position] = {
     val positions = new ListBuffer[Position]()
 
-    // TODO: improve this by making it more functional
-    // Check Left cell
-    if (!(pos.col - 1 < 0) && condition(board(pos.row)(pos.col - 1)))
-      positions += new Position(pos.row, pos.col - 1)
-
-    // Check Right Cell
-    if (!(pos.col + 1 > board.head.length - 1) && condition(board(pos.row)(pos.col + 1)))
-      positions += new Position(pos.row, pos.col + 1)
-
-    // Check Top Cell
-    if (!(pos.row - 1 < 0) && condition(board(pos.row - 1)(pos.col)))
-      positions += new Position(pos.row - 1, pos.col)
-
-    // Check Bottom Cell
-    if (!(pos.row + 1 > board.length - 1) && condition(board(pos.row + 1)(pos.col)))
-      positions += new Position(pos.row + 1, pos.col)
-
+    get_adjacent(board, pos).foreach(adjacent =>
+      if (condition(board, adjacent)) positions += adjacent
+    )
     return positions.toList
   }
 
   /** Gets number of lights adjacent to a square */
   def get_number_of_lights_around_number(board: Matrix, pos: Position): Int =
-    check_adjacent(board, pos, check_tile_for_light).length
+    check_adjacent(board, pos, char_to_board_pos(_: Matrix, _: Position, check_tile_for_light)).length
 
   /** Checks the puzzle is solved
    *  Doesn't check if lights are placed incorrectly */
@@ -235,13 +278,12 @@ object solver extends App {
   }
 
   /** Finds all possible candidates
-  * Returned list is sorted by numbered walls as they are more difficult to solve
-   */
+  * Returned list is sorted by numbered walls as they are more difficult to solve */
   // TODO: Find numbered walls first, append empty positions first, start with walls=4..1
    def find_tiles(board:Matrix, condition: Char => Boolean): List[Position] = {
    (for
      {
-       row <- board.indices;
+       row <- board.indices
        col <- board.head.indices
        if(condition(board(row)(col)))
      } yield new Position(row,col)).toList
@@ -251,18 +293,19 @@ object solver extends App {
     // printer(board)
     // println("Candidates: " + candidates)
 
-      // Check if finished
-    if (check_if_solved(board)) {
-      println("Candidates: " + candidates)
-      print_board(board)
-      return true
-    }
+
 
     // This node is visited
     visited += 1
 
    // Check if solvable
     if (candidates.isEmpty) {
+      // Check if finished
+      if (check_if_solved(board)) {
+        println("Candidates: " + candidates)
+        print_board(board)
+        return true
+      }
      return false
    }
 
@@ -283,36 +326,52 @@ object solver extends App {
   // Filter out empty spaces from candidates that are lit up
   def filter_litup(board: Matrix, candidates: List[Position], light:Position): List[Position] = {
     return candidates.filterNot(tile =>  
-      tile.row == light.row && // Check if tile and light is on the same row
-      !(check_wall_between_tiles(board, tile, light)) || // Check if there is a wall between tile and light
-      tile.col == light.col && // Check if the tile and light is on the same column
-      !(check_wall_between_tiles_two(board, tile, light)) // Check if there is a wall between tile and light
+      tile.row == light.row &&                             // Check if tile and light is on the same row
+      !(check_wall_between_tiles(board, tile, light)) ||   // Check if there is a wall between tile and light
+      tile.col == light.col &&                             // Check if the tile and light is on the same column
+      !(check_wall_between_tiles_two(board, tile, light))  // Check if there is a wall between tile and light
     )
   }
 
   /** Finds walls between two given positions on a board
-    * Returns false if a wall is found, if no wall is find returns true
-    */
+    * Returns false if a wall is found, if no wall is find returns true */
     // TODO: Combine these to one function, tried to transpose board, is promising but require further tweaks
-  def check_wall_between_tiles(board: Matrix, tile: Position, light: Position): Boolean= {
-    val walls = find_tiles(board, check_tile_if_wall) // Get all the walls in board
-    walls.find(wall =>  wall.row == light.row && // Get walls on the same row as the tile given
-      ((wall.col > light.col && wall.col < tile.col) || // Check to the right of light and left of tile
-      (wall.col < light.col && wall.col > tile.col))    // Check to the left of light and right of tile
+  def check_wall_between_tiles(board: Matrix, tile: Position, light: Position): Boolean = {
+    val walls = find_tiles(board, check_tile_if_wall)    // Get all the walls in board
+
+    walls.find(wall => wall.row == light.row         &&  // Get walls on the same row as the tile given
+      ((wall.col > light.col && wall.col < tile.col) ||  // Check to the right of light and left of tile
+      (wall.col < light.col && wall.col > tile.col))     // Check to the left of light and right of tile
     ) match {
-      case Some(_) => return true // A wall as found
-      case None => return false // No wall found
+      case Some(_) => return true  // A wall as found
+      case None    => return false // No wall found
     }
   }
 
-  def check_wall_between_tiles_two(board: Matrix, tile: Position, light: Position): Boolean= {
-      val walls = find_tiles(board, check_tile_if_wall) // Get all the walls in board
-      walls.find(wall =>  wall.col == light.col        &&  // Get walls on the same row as the tile given
-        ((wall.row > light.row && wall.row < tile.row) || // Check if wall position is to the right of light and left of tile
-        (wall.row < light.row && wall.row > tile.row))    // Check if wall position is to the left of light and right of tile
-      ) match {
-        case Some(_) => return true
-        case None => return false
-      }
+  def check_wall_between_tiles_two(board: Matrix, tile: Position, light: Position): Boolean = {
+    val walls = find_tiles(board, check_tile_if_wall)    // Get all the walls in board
+
+    walls.find(wall =>  wall.col == light.col        &&  // Get walls on the same row as the tile given
+      ((wall.row > light.row && wall.row < tile.row) ||  // Check if wall position is to the right of light and left of tile
+      (wall.row < light.row && wall.row > tile.row))     // Check if wall position is to the left of light and right of tile
+    ) match {
+      case Some(_) => return true
+      case None    => return false
     }
+  }
+
+  def sort_number_tiles(board: Matrix, pos1: Position, pos2: Position): Boolean = {
+    board(pos1.row)(pos1.col).asDigit > board(pos2.row)(pos2.col).asDigit
+  }
+
+  def place_light_deterministic(board: Matrix): Unit = {
+    val number_tiles = find_tiles(board, check_tile_if_num)
+      .sortWith(sort_number_tiles(board, _:Position, _:Position))
+
+    number_tiles.foreach( num =>{
+      val nr_of_empty = check_adjacent(board, num, check_placement)
+      println(num)
+      println(nr_of_empty)
+    })
+  }
 }

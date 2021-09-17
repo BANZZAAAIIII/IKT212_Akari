@@ -58,7 +58,7 @@ class PlaceLightTests extends FunSuite {
   }
 
   test("TestInvalidPlacement22.PuzzleSolver") {
-    var pos = new Position(2, 2)
+    var pos = new Position(2, 1)
 
     solver.place_light(test_board, pos) match {
       case Some(_) => fail("This move shouldn't be legal")
@@ -83,28 +83,28 @@ class CheckAdjacentTests extends FunSuite {
   test("TestAdjacentListEmpty.PuzzleSolver") {
     val pos = new Position(1,2)
 
-    Option(solver.check_adjacent(test_board, pos, check_tile_if_num)) match {
+    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_if_num))) match {
       case Some(b) => assert(b.isEmpty)
       case None => fail
     }
   }
   test("TestAdjacentTop.PuzzleSolver") {
     val pos = new Position(3,1)
-    Option(solver.check_adjacent(test_board, pos, check_tile_if_num)) match {
+    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_if_num))) match {
       case Some(b) => assert(b(0) == Position(2, 1))
       case None => fail
     }
   }
   test("TestAdjacentBottom.PuzzleSolver") {
     val pos = new Position(4,0)
-    Option(solver.check_adjacent(test_board, pos, check_tile_if_num)) match {
+    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_if_num))) match {
       case Some(b) => assert(b(0) == Position(5, 0))
       case None => fail
     }
   }
   test("TestAdjacentRight.PuzzleSolver") {
     val pos = new Position(0,0)
-    Option(solver.check_adjacent(test_board, pos, check_tile_if_num)) match {
+    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_if_num))) match {
     case Some(b) => assert(b(0) == Position(0, 1))
     case None => fail
     }
@@ -112,7 +112,7 @@ class CheckAdjacentTests extends FunSuite {
 
   test("TestAdjacentLeft.PuzzleSolver") {
     val pos = new Position(0,2)
-    Option(solver.check_adjacent(test_board, pos, check_tile_if_num)) match {
+    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_if_num))) match {
     case Some(b) => assert(b(0) == Position(0, 1))
     case None => fail
     }
@@ -120,7 +120,7 @@ class CheckAdjacentTests extends FunSuite {
 
   test("TestAdjacentWall.PuzzleSolver") {
     val pos = new Position(2,2)
-    Option(solver.check_adjacent(test_board, pos, check_tile_for_light)) match {
+    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_for_light))) match {
     case Some(b) => assert(b.isEmpty)
     case None => fail
     }
