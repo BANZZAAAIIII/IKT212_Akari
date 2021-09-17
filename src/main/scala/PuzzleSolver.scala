@@ -74,7 +74,7 @@ object PuzzleSolver extends App{
 
 
     println(puzzle.toString())
-    return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.id, puzzle.difficulty, puzzle.symmetry, puzzle.black_percent, puzzle.solution, puzzle.board)
+    return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.solution, puzzle.board)
   }
 
   initRW(args(0),args(1)) // read argument, file 1 is file containing puzzles, file 2 is file to write solutions
