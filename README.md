@@ -8,3 +8,5 @@ How to setup for bitbucket
 3. Push main branch to bitbucket, assumes you have added credentials
   - git push bitbucket main
     - git push -u bitbucket main
+
+As long as you don't make changes to any files in main, there should never be any conflicts merging master to main before pushing to bitbucket.
