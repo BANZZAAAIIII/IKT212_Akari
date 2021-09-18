@@ -8,13 +8,16 @@ import PuzzleReaderWriter.{getPuzzle, putSolution}
 
 import com.akari.types._
 import stopwatch.Stopwatch
+import utility.Boards
+import utility.Util.filter_space
+
 
 import java.util.concurrent.locks.Condition
 
 import scala.::
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import scala.collection.immutable.HashMap
 
 // Our files
 import com.akari.types._
@@ -74,44 +77,27 @@ object PuzzleSolver extends App{
 
 
 object testPuzzleSolver extends App {
-  def filter_space(c: Char): Boolean = c != ' '
-  val simple_board: Matrix = List(
-    "_ 1 _ _".toList.filter(filter_space),
-    "_ X X _".toList.filter(filter_space),
-    "_ 2 _ _".toList.filter(filter_space),
-    "_ _ 3 X".toList.filter(filter_space),
-    "_ _ _ _".toList.filter(filter_space),
-    "_ _ 2 _".toList.filter(filter_space)
-  )
-
-  val board7x7: Matrix = List(
+  val id_7x7_c3mBc2a2a2a0c2m0c: Matrix = List(
+    "_ _ * 3 * _ _".toList.filter(filter_space),
+    "_ _ _ * _ _ _".toList.filter(filter_space),
+    "_ _ _ 2 _ _ _".toList.filter(filter_space),
+    "2 _ 2 * 2 _ 0".toList.filter(filter_space),
+    "_ _ _ 2 _ _ _".toList.filter(filter_space),
     "_ _ _ _ _ _ _".toList.filter(filter_space),
-    "2 _ _ _ _ _ _".toList.filter(filter_space),
-    "_ 1 _ 2 0 _ _".toList.filter(filter_space),
-    "X _ _ _ _ _ _".toList.filter(filter_space),
-    "X _ _ _ _ _ _".toList.filter(filter_space),
-    "_ _ _ _ _ 0 _".toList.filter(filter_space),
-    "2 _ X _ _ _ _".toList.filter(filter_space)
+    "_ _ _ 0 _ _ _".toList.filter(filter_space)
   )
 
-  val id_7x7_a2Bj0fBc3cBf1j10a: Matrix = List(
-    "_ 2 X _ _ _ _".toList.filter(filter_space),
-    "_ _ _ _ _ _ 0".toList.filter(filter_space),
-    "_ _ _ _ _ _ X".toList.filter(filter_space),
-    "_ _ _ 3 _ _ _".toList.filter(filter_space),
-    "X _ _ _ _ _ _".toList.filter(filter_space),
-    "1 _ _ _ _ _ _".toList.filter(filter_space),
-    "_ _ _ _ 1 0 _".toList.filter(filter_space)
-  )
-
+  println(solver.place_light(id_7x7_c3mBc2a2a2a0c2m0c, Position(4, 2)))
 
   val timer = new Stopwatch() // Use to take realtime
   // Herusitic tricks
-  val board = solver.place_light_deterministic(id_7x7_a2Bj0fBc3cBf1j10a)
-
+  val board = solver.place_light_deterministic(Boards.id_7x7_c3mBc2a2a2a0c2m0c)
+  solver.print_board(board)
+//
 //  timer.start()
 //  val temp = solver.backtracking(board, solver.find_tiles(board, solver.check_tile_if_Empty))
 //  timer.stop()
+
   // Prints
 //  println(temp)
 //  println("Promising: " + solver.promising + "\n" + "Visited: " + solver.visited)
@@ -134,7 +120,7 @@ object solver extends App {
 
   /** Returns true if the tile has any number/constraint */
   def check_tile_if_num(c: Char): Boolean = c match {
-    case One | Two | Three | Four  => true
+    case Zero | One | Two | Three | Four  => true
     case _ => false
   }
 
@@ -153,8 +139,6 @@ object solver extends App {
   def char_to_board_pos(board: Matrix, pos: Position, condition: Char => Boolean): Boolean = {
     condition(board(pos.row)(pos.col))
   }
-
-  def filter_space(c: Char): Boolean = c != ' '
 
   /** Checks a list if there is a light in it.
    *  Takes a Range to iterate over the list */
@@ -194,7 +178,7 @@ object solver extends App {
     // println("X: " + pos.col + " Y: " + pos.row)
     if (!check_tile_if_Empty(board(pos.row)(pos.col))) return None
 
-    check_adjacent(board, pos, char_to_board_pos(_:Matrix, _:Position, check_tile_if_num)).foreach( num =>{
+    check_adjacent(board, pos, char_to_board_pos(_:Matrix, _:Position, check_tile_if_num)).foreach( num => {
       val nr_of_light = get_number_of_lights_around_number(board, num)
       if (nr_of_light >= board(num.row)(num.col).asDigit)
         return None
@@ -363,30 +347,29 @@ object solver extends App {
   def place_light_deterministic(board: Matrix): Matrix = {
     val number_tiles = find_tiles(board, check_tile_if_num)
       .sortWith(sort_number_tiles(board, _:Position, _:Position))
+    // TODO: filter out numbers with max num of lights
 
     var newBoard:Matrix = board
 
+    // Checks if we can place a light adjacent to num tile
     number_tiles.foreach( num => {
       val adjacent_empty = check_adjacent(newBoard, num, check_placement)
-
-//      println("-----")
-//      println("Posisiton: " + num + ", char: " + newBoard(num.row)(num.col))
+//      println("-----\n" + "Posisiton: " + num + ", char: " + newBoard(num.row)(num.col) + "\nadjacent_empty: " + adjacent_empty)
 //      println("adjacent_empty: " + adjacent_empty)
+
       if (adjacent_empty.length <= newBoard(num.row)(num.col).asDigit) {
-        adjacent_empty.foreach( tile => place_light(newBoard, tile) match {
-          case Some(b) => newBoard = b
-          case None    =>
+        adjacent_empty.foreach( tile => {
+          place_light(newBoard, tile) match {
+            case Some(b) => newBoard = b    // Replaces board
+            case None    =>                 // This happens often, see todo
+          }
         })
       }
     })
-
-//    print_board(board)
-//    println("")
-//    print_board(newBoard)
-
-    if (newBoard == board)
+    // If there was any lights placed there may be new lights that can be placed
+    if (newBoard == board) {
       return newBoard
-    else
+    } else
       place_light_deterministic(newBoard)
   }
 }
