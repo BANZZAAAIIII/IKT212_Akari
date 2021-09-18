@@ -1,11 +1,11 @@
 // Puzzle class represents the puzzle
 import com.akari.types._
 
-class Puzzle(x: Int, y: Int, sol: String, _board: Matrix) {
+class Puzzle(x: Int, y: Int, sol: Option[Matrix], _board: Matrix) {
 
   val sizeX: Int = x;
   val sizeY: Int = y;
-  val solution: String = sol;
+  val solution: Option[Matrix] = sol;
   val board: Matrix = _board
 
   override def toString: String = {
