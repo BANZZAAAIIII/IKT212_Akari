@@ -1,13 +1,14 @@
 import org.scalatest.FunSuite
 import com.akari.types._
 
-import solver.check_placement
+import solver.{check_placement, check_tile_if_num, check_tile_if_light}
+import utility.Util.filter_space
+
 
 
 /** A set of simple puzzles that the Akari solver can solve */
 class PlaceLightTests extends FunSuite {
-  import solver.filter_space
-  val test_board: List[List[Char]] = List(
+  val test_board: Matrix = List(
     "_ 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
     "_ 2 _".toList.filter(filter_space),
@@ -62,6 +63,35 @@ class PlaceLightTests extends FunSuite {
   }
 }
 
+class PlaceLightDeterministicTest extends FunSuite {
+  val id_7x7_a2Bj0fBc3cBf1j10a: Matrix = List(
+    "_ 2 X _ _ _ _".toList.filter(filter_space),
+    "_ _ _ _ _ _ 0".toList.filter(filter_space),
+    "_ _ _ _ _ _ X".toList.filter(filter_space),
+    "_ _ _ 3 _ _ _".toList.filter(filter_space),
+    "X _ _ _ _ _ _".toList.filter(filter_space),
+    "1 _ _ _ _ _ _".toList.filter(filter_space),
+    "_ _ _ _ 1 0 _".toList.filter(filter_space)
+  )
+
+  val board_solved: Matrix = List(
+    "* 2 X _ _ _ _".toList.filter(filter_space),
+    "_ * _ _ _ _ 0".toList.filter(filter_space),
+    "_ _ _ * _ _ X".toList.filter(filter_space),
+    "_ _ * 3 _ _ _".toList.filter(filter_space),
+    "X _ _ * _ _ _".toList.filter(filter_space),
+    "1 _ _ _ * _ _".toList.filter(filter_space),
+    "* _ _ _ 1 0 _".toList.filter(filter_space)
+  )
+
+  test("TestDeterministicLightPlacement.PuzzleSolver") {
+    var pos = new Position(2, 0)
+
+    assert(solver.place_light_deterministic(id_7x7_a2Bj0fBc3cBf1j10a) == board_solved)
+  }
+
+}
+
 class CheckAdjacentValidPlacementTest extends FunSuite {
   def filter_space(c: Char): Boolean = c != ' '
   val test_board: Matrix = List(
@@ -82,10 +112,7 @@ class CheckAdjacentValidPlacementTest extends FunSuite {
 }
 
 class CheckAdjacentTests extends FunSuite {
-  import solver.filter_space
-  import solver.check_tile_if_num
-  import solver.check_tile_if_light
-  val test_board: List[List[Char]] = List(
+  val test_board: Matrix = List(
     "_ 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
     "_ 2 _".toList.filter(filter_space),
@@ -142,7 +169,6 @@ class CheckAdjacentTests extends FunSuite {
 }
 
 class CheckListTests extends FunSuite {
-  import solver.filter_space
   val simple_board: List[List[Char]] = List(
     "_ _ _ _".toList.filter(filter_space),
     "_ _ X _".toList.filter(filter_space),
@@ -168,7 +194,6 @@ class CheckListTests extends FunSuite {
 }
 
 class CheckSolvedTests extends FunSuite {
-  import solver.filter_space
   val simple_solved_board: Matrix = List(
     "_ * _ _".toList.filter(filter_space),
     "_ _ X _".toList.filter(filter_space),
@@ -201,7 +226,6 @@ class CheckSolvedTests extends FunSuite {
 }
 
 class CheckFilterEmptyTests extends FunSuite {
-  import solver.filter_space
   val test_board: List[List[Char]] = List(
     "* 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
@@ -234,7 +258,6 @@ class CheckFilterEmptyTests extends FunSuite {
 }
 
 class CheckWallBetweenTiles extends FunSuite {
-  import solver.filter_space
     val test_board: List[List[Char]] = List(
       "* 1 _".toList.filter(filter_space),
       "_ X _".toList.filter(filter_space),
@@ -263,7 +286,6 @@ class CheckWallBetweenTiles extends FunSuite {
 }
 
 class TestScalaStuff extends FunSuite {
-  import solver.filter_space
   val test_board: List[List[Char]] = List(
     "* 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
