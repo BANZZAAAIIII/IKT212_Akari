@@ -25,7 +25,10 @@ object PuzzleReaderWriter{
     val fw = new FileWriter(outfile, false)                       // Open file
     fw.write("puzzles 1\n")                                       // Cheating to simplify code, as we do not need to read or write more than one puzzle per file
     fw.write("size " + puzzle.sizeX + "x" + puzzle.sizeY + "\n")  // Write the size
-    puzzle.solution.get.foreach(s => fw.write(s.mkString + "\n")) // Write the puzzle
+    puzzle.solution match {                                       // Write the solution
+    case Some(solution) => solution.foreach(s => fw.write(s.mkString + "\n"));
+    case None => fw.write("No solution found")
+    }
     fw.close                                                      // Close the file
   }
 }
