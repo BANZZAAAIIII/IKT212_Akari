@@ -1,11 +1,5 @@
 
 import PuzzleReaderWriter.{getPuzzle, putSolution}
-
-/**
-  *   TODO: Make a dictionary "x" = x, "y" = y
-  */
-
-
 import com.akari.types._
 import stopwatch.Stopwatch
 import utility.Boards
@@ -31,48 +25,19 @@ object PuzzleSolver extends App{
     println("Solving puzzle")
     puzzle.printBoard
     timer.start()
-    val temp = solver.backtracking(puzzle.board, solver.find_tiles(puzzle.board, solver.check_tile_if_Empty))
+    val temp: Option[Matrix] = solver.backtracking(puzzle.board, solver.find_tiles(puzzle.board, solver.check_tile_if_Empty))
     timer.stop()
 
     // Prints
-    println(temp)
+    solver.print_board(temp.get)
     println("Promising: " + solver.promising + "\n" + "Visited: " + solver.visited)
     println("Time: " + timer.stop.getElapsedTime())
 
-    // println(solver.find_candidates(simple_board))
-    // Backtracking
-    //backtracking(puzzle.board)
-    
-    // Post processing
-
-    // we predefine just two solutions
-    val solution7x7 =
-        "* _ _ _ _ _ _\n"+
-        "2 _ _ * _ _ _\n"+
-        "* 1 _ 2 0 _ *\n"+
-        "X _ _ * _ _ _\n"+
-        "X _ * _ _ _ _\n"+
-        "* _ _ _ _ 0 _\n"+
-        "2 * X _ * _ _"
-    val solution10x5 =
-        "_ _ _ _ * _ _ _ 1 *\n"+
-        "_ * 1 0 _ * X _ 0 _\n"+
-        "_ _ _ _ _ _ _ * _ 1\n"+
-        "_ _ * 2 _ 1 * _ X *\n"+
-        "_ _ _ * _ _ _ 1 * _"
-    val size = puzzle.sizeX*100 + puzzle.sizeY
-    val solution = size match {
-      case 707  => solution7x7
-      case 1005 => solution10x5
-      case _    => "cannot solve this puzzle"
-    }
-
-
-    println(puzzle.toString())
-    return new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzle.solution, puzzle.board)
+    return new Puzzle(puzzle.sizeX, puzzle.sizeY, temp, puzzle.board)
   }
 
     putSolution(args(1), solve(getPuzzle(args(0))))
+
 }
 
 
@@ -267,24 +232,23 @@ object solver extends App {
      } yield new Position(row,col)).toList
    }
  
-  def backtracking(board: Matrix, candidates: List[Position]): Boolean = {
-    // printer(board)
+  def backtracking(board: Matrix, candidates: List[Position]): Option[Matrix] = {
+    // print_board(board)
     // println("Candidates: " + candidates)
 
-
+      // Check if finished
+    if (check_if_solved(board)) {
+      // println("Candidates: " + candidates)
+      // print_board(board)
+      return Option(board)
+    }
 
     // This node is visited
     visited += 1
 
    // Check if solvable
     if (candidates.isEmpty) {
-      // Check if finished
-      if (check_if_solved(board)) {
-        println("Candidates: " + candidates)
-        print_board(board)
-        return true
-      }
-     return false
+     return None
    }
 
     for (light <- candidates) {
@@ -293,12 +257,19 @@ object solver extends App {
 
       // Attempt placing a light
       place_light(board, light) match {
-        case Some(newBoard) => if (backtracking(newBoard, filter_litup(board, candidates, light))) return true
-        case None           => if (backtracking(board, candidates.filterNot(p => p == light))) return true
+        case Some(newBoard) =>  // Attempt to place the next light
+          backtracking(newBoard, filter_litup(board, candidates, light)) match {
+            case Some(newNewBoard) => return Option(newNewBoard); 
+            case None => 
+              }
+        case None => // Attempt to use the next candidate
+          backtracking(board, candidates.filterNot(p => p == light)) match {
+          case Some(twoBoard) => return Option(twoBoard);
+          case None => 
+            }
       }
     }
-
-    return false
+    return None // No solution was found
   }
 
   /** Filter out empty spaces from candidates that are lit up */

@@ -14,7 +14,7 @@ object PuzzleReaderWriter{
     return new Puzzle(
       sizeNumbers(0).toInt,   // Columns
       sizeNumbers.last.toInt, // Rows
-      "",                     // Solution
+      None,                     // Solution
       board                   // Board
       )
   }
@@ -25,7 +25,7 @@ object PuzzleReaderWriter{
     val fw = new FileWriter(outfile, false)                       // Open file
     fw.write("puzzles 1\n")                                       // Cheating to simplify code, as we do not need to read or write more than one puzzle per file
     fw.write("size " + puzzle.sizeX + "x" + puzzle.sizeY + "\n")  // Write the size
-    fw.write(puzzle.solution + "\n")                              // Write the puzzle
-    fw.close                                                    // Close the file
+    puzzle.solution.get.foreach(s => fw.write(s.mkString + "\n")) // Write the puzzle
+    fw.close                                                      // Close the file
   }
 }
