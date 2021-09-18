@@ -38,6 +38,7 @@ object PuzzleSolver extends App{
 
     putSolution(args(1), solve(getPuzzle(args(0))))
 
+
 }
 
 
