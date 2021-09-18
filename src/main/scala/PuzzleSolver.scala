@@ -37,6 +37,7 @@ object PuzzleSolver extends App{
   }
 
     putSolution(args(1), solve(getPuzzle(args(0))))
+ 
 
 
 }
@@ -255,20 +256,10 @@ object solver extends App {
     for (light <- candidates) {
       // Check if this node is promising
       promising += 1
-
-      // Attempt placing a light
-      place_light(board, light) match {
-        case Some(newBoard) =>  // Attempt to place the next light
-          backtracking(newBoard, filter_litup(board, candidates, light)) match {
-            case Some(newNewBoard) => return Option(newNewBoard); 
-            case None => 
-              }
-        case None => // Attempt to use the next candidate
-          backtracking(board, candidates.filterNot(p => p == light)) match {
-          case Some(twoBoard) => return Option(twoBoard);
-          case None => 
-            }
-      }
+      place_light(board, light).fold(                                                             // Attempt to place a light
+      backtracking(board, candidates.filterNot(p => p == light)).map(x => return Option(x))       // Failed to place a light, remove candidate and attempt next position
+      )(newBoard =>
+        backtracking(newBoard, filter_litup(board, candidates, light)).map(x => return Option(x))) // Success, place light, and go next
     }
     return None // No solution was found
   }
