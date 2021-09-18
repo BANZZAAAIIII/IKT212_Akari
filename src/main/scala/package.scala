@@ -7,6 +7,7 @@ package object types {
     lazy val Wall  = 'X'
     lazy val Empty = '_'
     lazy val Light = '*'
+    lazy val Zero  = '0'
     lazy val One   = '1'
     lazy val Two   = '2'
     lazy val Three = '3'

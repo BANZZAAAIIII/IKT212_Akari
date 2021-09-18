@@ -1,13 +1,8 @@
 import org.scalatest.FunSuite
 import com.akari.types._
-import solver.simple_solved_board
 
-class test extends FunSuite {
-  test("getNumPuzzles.PuzzleReaderWriter") {
-    // PuzzleReaderWriter.initRW("puzzleUnsolved.txt", "puzzleSolved.txt")
-    // assert(PuzzleReaderWriter.getNumPuzzles == 2)
-  }
-}
+import solver.check_placement
+
 
 /** A set of simple puzzles that the Akari solver can solve */
 class PlaceLightTests extends FunSuite {
@@ -40,7 +35,7 @@ class PlaceLightTests extends FunSuite {
   }
 
   test("TestValidPlacementRow13.PuzzleSolver") {
-    var pos = new Position(1, 3)
+    var pos = new Position(3, 1)
 
     solver.place_light(test_board, pos) match {
       case Some(b) => assert(b(pos.row)(pos.col) == Light)
@@ -49,7 +44,7 @@ class PlaceLightTests extends FunSuite {
   }
 
   test("TestValidPlacementRow24.PuzzleSolver") {
-    var pos = new Position(2, 4)
+    var pos = new Position(4, 2)
 
     solver.place_light(test_board, pos) match {
       case Some(b) => assert(b(pos.row)(pos.col) == Light)
@@ -67,10 +62,29 @@ class PlaceLightTests extends FunSuite {
   }
 }
 
+class CheckAdjacentValidPlacementTest extends FunSuite {
+  def filter_space(c: Char): Boolean = c != ' '
+  val test_board: Matrix = List(
+    "_ 1 _ _".toList.filter(filter_space),
+    "_ X X 0".toList.filter(filter_space),
+    "_ 2 _ _".toList.filter(filter_space),
+    "_ _ 3 X".toList.filter(filter_space),
+    "_ _ _ _".toList.filter(filter_space),
+    "_ _ X _".toList.filter(filter_space)
+  )
+
+  test("TestAdjacentList3.PuzzleSolver") {
+    val pos = Position(3,2)
+
+    val nr_of_adjacent = solver.check_adjacent(test_board, pos, check_placement).length
+    assert(nr_of_adjacent == 3)
+  }
+}
+
 class CheckAdjacentTests extends FunSuite {
   import solver.filter_space
   import solver.check_tile_if_num
-  import solver.check_tile_for_light
+  import solver.check_tile_if_light
   val test_board: List[List[Char]] = List(
     "_ 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
@@ -120,7 +134,7 @@ class CheckAdjacentTests extends FunSuite {
 
   test("TestAdjacentWall.PuzzleSolver") {
     val pos = new Position(2,2)
-    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_for_light))) match {
+    Option(solver.check_adjacent(test_board, pos, solver.char_to_board_pos(_: Matrix, _: Position, check_tile_if_light))) match {
     case Some(b) => assert(b.isEmpty)
     case None => fail
     }
@@ -169,11 +183,20 @@ class CheckSolvedTests extends FunSuite {
     "* _ 2 *".toList.filter(filter_space)
   )
 
+  val solved_board7x7: Matrix = List(
+    "* _ _ _ _ _ _".toList.filter(filter_space),
+    "2 _ _ * _ _ _".toList.filter(filter_space),
+    "* 1 _ 2 0 _ *".toList.filter(filter_space),
+    "X _ _ * _ _ _".toList.filter(filter_space),
+    "X _ * _ _ _ _".toList.filter(filter_space),
+    "* _ _ _ _ 0 _".toList.filter(filter_space),
+    "2 * X _ * _ _".toList.filter(filter_space)
+  )
+
   test("Testcheckifsolved.PuzzleSolver") {
     assert(solver.check_if_solved(simple_solved_board))
-  }
-  test("Testcheckifsolvednumbers.PuzzleSolver") {
     assert(solver.check_if_solved(simple_solved_board_numbers))
+    assert(solver.check_if_solved(solved_board7x7))
   }
 }
 
@@ -224,7 +247,6 @@ class CheckWallBetweenTiles extends FunSuite {
     test("TestCheckIfWallBetweenOnRowOrColumns.PuzzleSolver") {
       assert(solver.check_wall_between_tiles(test_board, new Position(0, 2), new Position(0,0)) == true)
       assert(solver.check_wall_between_tiles(test_board, new Position(0, 0), new Position(0,2)) == true)
-      assert(solver.check_wall_between_tiles(test_board, new Position(0, 0), new Position(0,0)) == true)
       assert(solver.check_wall_between_tiles_two(test_board, new Position(1, 0), new Position(5,0)) == true)
       assert(solver.check_wall_between_tiles_two(test_board, new Position(4, 2), new Position(2,2)) == true)
     }
