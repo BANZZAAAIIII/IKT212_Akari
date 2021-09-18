@@ -7,6 +7,9 @@
 # VSCode
 .vscode
 
+# sbt
+.bsp
+
 # Bloop
 .bloop
 project/.bloop

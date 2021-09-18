@@ -1,21 +1,17 @@
+package akari
 
+// Libraries
+import java.util.concurrent.locks.Condition
+import scala.::
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
+
+// Our files
 import PuzzleReaderWriter.{getPuzzle, putSolution}
 import com.akari.types._
 import stopwatch.Stopwatch
 import utility.Boards
 import utility.Util.filter_space
-
-
-import java.util.concurrent.locks.Condition
-
-import scala.::
-
-import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
-
-// Our files
-import com.akari.types._
-import stopwatch.Stopwatch
 
 object PuzzleSolver extends App{
   // Solver function
