@@ -3,9 +3,9 @@ import com.akari.types._
 
 class Puzzle(x: Int, y: Int, sol: Option[Matrix], _board: Matrix) {
 
-  val sizeX: Int = x;
-  val sizeY: Int = y;
-  val solution: Option[Matrix] = sol;
+  val sizeX: Int = x
+  val sizeY: Int = y
+  val solution: Option[Matrix] = sol
   val board: Matrix = _board
 
   override def toString: String = {
@@ -14,7 +14,7 @@ class Puzzle(x: Int, y: Int, sol: Option[Matrix], _board: Matrix) {
   }
 
   // Converts board to rows of strings
-  def printBoard = {
+  def printBoard(): Unit = {
     board.foreach(s => println(s.mkString))
   }
 }

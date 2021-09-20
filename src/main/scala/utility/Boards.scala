@@ -44,5 +44,20 @@ object Boards {
     "_ _ _ 0 _ _ _".toList.filter(filter_space)
   )
 
+  val id_4x8_3AaBa3d1a3c0nBb: Matrix = List(
+    "_ X _ 3 _ _ _ _ ".toList.filter(filter_space),
+    "1 _ 3 _ _ _ 0 _ ".toList.filter(filter_space),
+    "_ _ _ _ _ _ _ _ ".toList.filter(filter_space),
+    "_ _ _ _ _ X _ _ ".toList.filter(filter_space)
+  )
+
+  val deterministic_numbers_test: Matrix = List(
+    "_ X _ 3 _ _ 0 _ ".toList.filter(filter_space),
+    "2 _ 3 _ _ _ _ _ ".toList.filter(filter_space),
+    "_ _ _ _ _ _ _ _ ".toList.filter(filter_space),
+    "_ _ _ _ _ _ 4 _ ".toList.filter(filter_space),
+    "_ _ _ _ _ _ _ _ ".toList.filter(filter_space)
+  )
+
 
 }

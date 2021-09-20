@@ -74,7 +74,7 @@ class PlaceLightDeterministicTest extends FunSuite {
     "_ _ _ _ 1 0 _".toList.filter(filter_space)
   )
 
-  val board_solved: Matrix = List(
+  val id_7x7_a2Bj0fBc3cBf1j10a_solved: Matrix = List(
     "* 2 X _ _ _ _".toList.filter(filter_space),
     "_ * _ _ _ _ 0".toList.filter(filter_space),
     "_ _ _ * _ _ X".toList.filter(filter_space),
@@ -84,10 +84,27 @@ class PlaceLightDeterministicTest extends FunSuite {
     "* _ _ _ 1 0 _".toList.filter(filter_space)
   )
 
+  val id_4x8_3AaBa3d1a3c0nBb: Matrix = List(
+    "_ X _ 3 _ _ _ _ ".toList.filter(filter_space),
+    "1 _ 3 _ _ _ 0 _ ".toList.filter(filter_space),
+    "_ _ _ _ _ _ _ _ ".toList.filter(filter_space),
+    "_ _ _ _ _ X _ _ ".toList.filter(filter_space)
+  )
+
+  val id_4x8_3AaBa3d1a3c0nBb_solved: Matrix = List(
+    "_ X * 3 * _ _ _ ".toList.filter(filter_space),
+    "1 _ 3 * _ _ 0 _ ".toList.filter(filter_space),
+    "_ _ _ _ _ _ _ _ ".toList.filter(filter_space),
+    "_ _ _ _ _ X _ _ ".toList.filter(filter_space)
+  )
+
+
+
   test("TestDeterministicLightPlacement.PuzzleSolver") {
     var pos = new Position(2, 0)
 
-    assert(solver.place_light_deterministic(id_7x7_a2Bj0fBc3cBf1j10a) == board_solved)
+    assert(solver.place_light_deterministic(id_4x8_3AaBa3d1a3c0nBb) == id_4x8_3AaBa3d1a3c0nBb_solved)
+    assert(solver.place_light_deterministic(id_7x7_a2Bj0fBc3cBf1j10a) == id_7x7_a2Bj0fBc3cBf1j10a_solved)
   }
 
 }
