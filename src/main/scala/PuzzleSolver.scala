@@ -270,37 +270,26 @@ object solver extends App {
   /** Filter out empty spaces from candidates that are lit up */
   def filter_litup(board: Matrix, candidates: List[Position], light:Position): List[Position] = {
     return candidates.filterNot(tile =>  
-      tile.row == light.row &&                             // Check if tile and light is on the same row
-      !(check_wall_between_tiles(board, tile, light)) ||   // Check if there is a wall between tile and light
-      tile.col == light.col &&                             // Check if the tile and light is on the same column
-      !(check_wall_between_tiles_two(board, tile, light))  // Check if there is a wall between tile and light
+      (tile.row == light.row || tile.col == light.col) && // Check if tile and light is on the same row or column
+      !(check_wall_between_tiles(board, tile, light))     // Check if there is a wall between tile and light
     )
   }
 
   /** Finds walls between two given positions on a board
     * Returns false if a wall is found, if no wall is find returns true */
-  // TODO: Combine these to one function, tried to transpose board, is promising but require further tweaks
   def check_wall_between_tiles(board: Matrix, tile: Position, light: Position): Boolean = {
     val walls = find_tiles(board, check_tile_if_wall)    // Get all the walls in board
 
-    walls.find(wall => wall.row == light.row         &&  // Get walls on the same row as the tile given
-      ((wall.col > light.col && wall.col < tile.col) ||  // Check to the right of light and left of tile
-      (wall.col < light.col && wall.col > tile.col))     // Check to the left of light and right of tile
+    walls.find(wall => 
+      (wall.row == light.row && wall.row == tile.row  &&  // Get walls on the same row as the tile given
+      ((wall.col > light.col && wall.col < tile.col)  ||  // Check to the right of light and left of tile
+      (wall.col < light.col && wall.col > tile.col))) ||   // Check to the left of light and right of tile
+      (wall.col == light.col && wall.col == tile.col  &&  // Get walls on the same row as the tile given
+      ((wall.row > light.row && wall.row < tile.row)  ||  // Check if wall position is to the right of light and left of tile
+      (wall.row < light.row && wall.row > tile.row)))
     ) match {
-      case Some(_) => return true  // A wall as found
+      case Some(_) => return true  // A wall was found
       case None    => return false // No wall found
-    }
-  }
-
-  def check_wall_between_tiles_two(board: Matrix, tile: Position, light: Position): Boolean = {
-    val walls = find_tiles(board, check_tile_if_wall)    // Get all the walls in board
-
-    walls.find(wall =>  wall.col == light.col        &&  // Get walls on the same row as the tile given
-      ((wall.row > light.row && wall.row < tile.row) ||  // Check if wall position is to the right of light and left of tile
-      (wall.row < light.row && wall.row > tile.row))     // Check if wall position is to the left of light and right of tile
-    ) match {
-      case Some(_) => return true
-      case None    => return false
     }
   }
 

@@ -270,18 +270,18 @@ class CheckWallBetweenTiles extends FunSuite {
     test("TestCheckIfWallBetweenOnRowOrColumns.PuzzleSolver") {
       assert(solver.check_wall_between_tiles(test_board, new Position(0, 2), new Position(0,0)) == true)
       assert(solver.check_wall_between_tiles(test_board, new Position(0, 0), new Position(0,2)) == true)
-      assert(solver.check_wall_between_tiles_two(test_board, new Position(1, 0), new Position(5,0)) == true)
-      assert(solver.check_wall_between_tiles_two(test_board, new Position(4, 2), new Position(2,2)) == true)
+      assert(solver.check_wall_between_tiles(test_board, new Position(1, 0), new Position(5,0)) == true)
+      assert(solver.check_wall_between_tiles(test_board, new Position(4, 2), new Position(2,2)) == true)
     }
 
     test("TestCheckIfNoWallBetweenOnRowOrColumns.PuzzleSolver") {
       assert(solver.check_wall_between_tiles(test_board, new Position(3, 0), new Position(3,1)) == false)
-      assert(solver.check_wall_between_tiles_two(test_board, new Position(0, 0), new Position(2,0)) == false)
+      assert(solver.check_wall_between_tiles(test_board, new Position(0, 0), new Position(2,0)) == false)
     }
 
     test("TestCheckIfTileAndLightAreDifferentRowsAndColumns.PuzzleSolver") {
       assert(solver.check_wall_between_tiles(test_board, new Position(1, 0), new Position(3,0)) == false)
-      assert(solver.check_wall_between_tiles_two(test_board, new Position(1, 0), new Position(0,2)) == false)
+      assert(solver.check_wall_between_tiles(test_board, new Position(1, 0), new Position(0,2)) == false)
     }
 }
 
