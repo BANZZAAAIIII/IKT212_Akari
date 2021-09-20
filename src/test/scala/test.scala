@@ -285,13 +285,52 @@ class CheckWallBetweenTiles extends FunSuite {
     }
 }
 
+class RemoveFilledWalls extends FunSuite {
+  val test_board: Matrix = List(
+    "X X _ X X".toList.filter(filter_space),
+    "X _ 0 _ X".toList.filter(filter_space),
+    "X X _ X X".toList.filter(filter_space)
+  )
+  val test_board2: Matrix = List(
+    "0 _ X X".toList.filter(filter_space),
+    "_ X X _".toList.filter(filter_space),
+    "X X _ 0".toList.filter(filter_space)
+  )
+  val test_board3: Matrix = List(
+    "X _ 0 _".toList.filter(filter_space),
+    "X _ _ _".toList.filter(filter_space),
+    "* 2 * 1".toList.filter(filter_space)
+  )
+  val test_board4: Matrix = List(
+    "_ _ 0 _".toList.filter(filter_space),
+    "_ _ _ _".toList.filter(filter_space),
+    "* 2 * 1".toList.filter(filter_space)
+  )
+  test("TestCheckIfGetWallAdjacent.PuzzleSolver") {
+    assert(solver.get_wall_adjacent(test_board, Position(1, 2)) == List(Position(1,1), Position(1,3), Position(0,2), Position(2,2)))
+    assert(solver.get_wall_adjacent(test_board2, Position(0,0)) == List(Position(0,1), Position(1,0)))
+    assert(solver.get_wall_adjacent(test_board2, Position(2,3)) == List(Position(2,2), Position(1,3)))
+  }
+  test("TestRemoveWalledCandidatesNoCandidatesRemaining.PuzzleSolver") {
+    assert(solver.remove_walled_candidates(test_board, solver.find_tiles(test_board, solver.check_tile_if_Empty)).isEmpty)
+    assert(solver.remove_walled_candidates(test_board2, solver.find_tiles(test_board2, solver.check_tile_if_Empty)).isEmpty)
+    assert(solver.remove_walled_candidates(test_board3, solver.find_tiles(test_board3, solver.check_tile_if_Empty)).isEmpty)
+  }
+  test("TestRemoveWalledCandidatesCandidatesRemaining.PuzzleSolver") {
+    val candidates = solver.find_tiles(test_board4, solver.check_tile_if_Empty)
+    val solutionCandidates: List[Position] = List(Position(0,0), Position(1,0))
+    val removeWalledCandidates = solver.remove_walled_candidates(test_board4, candidates)
+    assert(removeWalledCandidates == solutionCandidates)
+  }
+}
+
 class TestScalaStuff extends FunSuite {
   val test_board: List[List[Char]] = List(
     "* 1 _".toList.filter(filter_space),
     "_ X _".toList.filter(filter_space),
     "_ 2 _".toList.filter(filter_space),
     "_ _ 2".toList.filter(filter_space),
-    "X _ _".toList.filter(filter_space), // TODO: Add test to see if empty spaces are removed when pos=(4,1) is used
+    "X _ _".toList.filter(filter_space), 
     "_ _ _".toList.filter(filter_space)
   )
 
