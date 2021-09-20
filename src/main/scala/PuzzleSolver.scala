@@ -25,7 +25,8 @@ object PuzzleSolver extends App{
     println("Solving puzzle")
     puzzle.printBoard
     timer.start()
-    val temp: Option[Matrix] = solver.backtracking(puzzle.board, solver.find_tiles(puzzle.board, solver.check_tile_if_Empty))
+    val board = solver.place_light_deterministic(puzzle.board)
+    val temp: Option[Matrix] = solver.backtracking(board, solver.find_tiles(board, solver.check_tile_if_Empty))
     timer.stop()
 
     // Prints
@@ -239,28 +240,26 @@ object solver extends App {
     // println("Candidates: " + candidates)
 
       // Check if finished
-    if (check_if_solved(board)) {
-      // println("Candidates: " + candidates)
-      // print_board(board)
-      return Option(board)
-    }
 
     // This node is visited
     visited += 1
 
    // Check if solvable
     if (candidates.isEmpty) {
+      if (check_if_solved(board)) {
+        // println("Candidates: " + candidates)
+        // print_board(board)
+        return Option(board)
+      }
      return None
    }
 
-    for (light <- candidates) {
       // Check if this node is promising
       promising += 1
-      place_light(board, light).fold(                                                             // Attempt to place a light
-      backtracking(board, candidates.filterNot(p => p == light)).map(x => return Option(x))       // Failed to place a light, remove candidate and attempt next position
-      )(newBoard =>
-        backtracking(newBoard, filter_litup(board, candidates, light)).map(x => return Option(x))) // Success, place light, and go next
-    }
+      place_light(board, candidates.head).map(newBoard =>
+        backtracking(newBoard, filter_litup(board, candidates, candidates.head)).map(x => return Option(x))) // Success, place light, and go next
+
+      backtracking(board, candidates.filterNot(p => p == candidates.head)).map(x => return Option(x))
     return None // No solution was found
   }
 

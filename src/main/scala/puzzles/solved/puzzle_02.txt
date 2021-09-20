@@ -1,3 +1,11 @@
 puzzles 1
-size 20x15
-
+size 8x9
+_*_X_*_X
+_X*2*___
+*_XX_1*_
+2*______
+XXXX_X0_
+X*2*X__*
+*_X_*XXX
+XXX_X2*X
+_____*_X
