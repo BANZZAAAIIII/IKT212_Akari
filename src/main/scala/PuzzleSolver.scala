@@ -228,7 +228,6 @@ object solver extends App {
 
   /** Finds all possible candidates
   * Returned list is sorted by numbered walls as they are more difficult to solve */
-  // TODO: Find numbered walls first, append empty positions first, start with walls=4..1
    def find_tiles(board:Matrix, condition: Char => Boolean): List[Position] = {
    (for
      {
@@ -237,7 +236,8 @@ object solver extends App {
        if(condition(board(row)(col)))
      } yield new Position(row,col)).toList
    }
- 
+
+
   def backtracking(board: Matrix, candidates: List[Position]): Option[Matrix] = {
     // print_board(board)
     // println("Candidates: " + candidates)
@@ -313,6 +313,9 @@ object solver extends App {
   def place_light_deterministic(board: Matrix): Matrix = {
     val number_tiles = find_tiles(board, check_tile_if_num)
       .sortWith(sort_number_tiles(board, _:Position, _:Position))
+      .filterNot(wall =>                                     
+        get_number_of_lights_around_number(board, wall) ==
+        board(wall.row)(wall.col).asDigit)
     // TODO: filter out numbers with max num of lights
 
     var newBoard:Matrix = board
@@ -327,7 +330,7 @@ object solver extends App {
         adjacent_empty.foreach( tile => {
           place_light(newBoard, tile) match {
             case Some(b) => newBoard = b    // Replaces board
-            case None    =>                 // This happens often, see todo
+            case None    => println("This should not happen :)")                // This happens often, see todo
           }
         })
       }
@@ -352,7 +355,11 @@ object solver extends App {
     return candidates.filterNot(pos => walls.contains(pos)) // Remove those empty tiles from the candidates list
   }
 
-  def get_wall_adjacent(board: Matrix, wall: Position): List[Position] = {
-      return check_adjacent(board, wall, char_to_board_pos(_:Matrix,_:Position, check_tile_if_Empty))
+  // TODO: Sort candidates by tiles around higher numbered walls firts
+  def sort_candidates(board: Matrix, candidates: List[Position]): List[Position] = {
+    val sortedList: ListBuffer[Position] = new ListBuffer[Position]()
+    val number_tiles = find_tiles(board, check_tile_if_num)
+      .sortWith(sort_number_tiles(board, _:Position, _:Position))
+    return candidates
   }
 }
