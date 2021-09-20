@@ -319,6 +319,42 @@ class RemoveFilledWalls extends FunSuite {
   }
 }
 
+class SortCandidates extends FunSuite {
+  val test_board: Matrix = List(
+  "1 2 3 4".toList.filter(filter_space),
+  "_ _ _ _".toList.filter(filter_space)
+  )
+  val test_board2: Matrix = List(
+  "1 2 3 4".toList.filter(filter_space),
+  "_ _ _ _".toList.filter(filter_space),
+  "_ _ _ _".toList.filter(filter_space)
+  )
+  val test_board3: Matrix = List(
+  "1 _ _ _".toList.filter(filter_space),
+  "_ 2 _ _".toList.filter(filter_space),
+  "_ _ _ 4".toList.filter(filter_space)
+  )
+  test("TestSimpleBoardSorted.PuzzleSolver") {
+  val solution: List[Position] = List(
+  Position(1,3), Position(1, 2), Position(1,1), Position(1,0))
+  assert(solver.sort_candidates(test_board, solver.find_tiles(test_board, solver.check_tile_if_Empty)) == solution)
+  }
+  test("TestSortingWithExtraEmptyTiles.PuzzleSolver") {
+  val solution: List[Position] = List(
+  Position(1,3), Position(1, 2), Position(1,1), Position(1,0),
+  Position(2,0), Position(2,1), Position(2,2), Position(2,3))
+  assert(solver.sort_candidates(test_board2, solver.find_tiles(test_board2, solver.check_tile_if_Empty)) == solution)
+  }
+  test("TestComplexBoard.PuzzleSolver") {
+    val solution: List[Position] = List(
+      Position(2,2), Position(1,3),
+      Position(1,0), Position(1,2), Position(0,1), Position(2,1),
+      Position(0,2), Position(0,3), Position(2,0)
+    )
+    assert(solver.sort_candidates(test_board3, solver.find_tiles(test_board3, solver.check_tile_if_Empty)) == solution)
+  }
+}
+
 class TestScalaStuff extends FunSuite {
   val test_board: List[List[Char]] = List(
     "* 1 _".toList.filter(filter_space),

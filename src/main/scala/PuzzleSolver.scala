@@ -24,10 +24,15 @@ object PuzzleSolver extends App{
     // Herusitic tricks
     println("Solving puzzle")
     puzzle.printBoard
+    // TODO: Clean up this process, create custom monads?
     timer.start()
     val board = solver.place_light_deterministic(puzzle.board)
     val candidates = solver.find_tiles(board, solver.check_tile_if_Empty)
-    val tempCandidates = solver.remove_walled_candidates(board, candidates)
+    println("0 Length:" + candidates.length + "\n" + candidates + "\n")
+    val candidates2 = solver.sort_candidates(board, candidates)
+    println("1 Length:" + candidates2.length + "\n" + candidates2 + "\n")
+    val tempCandidates = solver.remove_walled_candidates(board, candidates2)
+    println("2 Length:" + tempCandidates.length + "\n" + tempCandidates + "\n")
     val temp: Option[Matrix] = solver.backtracking(board, tempCandidates)
     timer.stop()
 
@@ -38,10 +43,7 @@ object PuzzleSolver extends App{
 
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, temp, puzzle.board)
   }
-
     putSolution(args(1), solve(getPuzzle(args(0))))
-
-
 }
 
 
@@ -244,9 +246,10 @@ object solver extends App {
 
       // Check if finished
 
-    // This node is visited
-    visited += 1
-    val tempCandidates = remove_walled_candidates(board, candidates) // TODO: Can remove additional candidates during runtime, how efficiten this is requires further testing
+      // Check if this node is promising
+      promising += 1
+    // val tempCandidates = remove_walled_candidates(board, candidates) // TODO: Can remove additional candidates during runtime, how efficiten this is requires further testing
+    val tempCandidates = candidates
    // Check if solvable
     if (tempCandidates.isEmpty) {
       if (check_if_solved(board)) {
@@ -258,12 +261,12 @@ object solver extends App {
    }
 
 
-      // Check if this node is promising
-      promising += 1
-      place_light(board, tempCandidates.head).map(newBoard =>
-        backtracking(newBoard, filter_litup(board, tempCandidates, tempCandidates.head)).map(x => return Option(x))) // Success, place light, and go next
+    // This node is visited
+    visited += 1
+    place_light(board, tempCandidates.head).map(newBoard =>
+      backtracking(newBoard, filter_litup(board, tempCandidates, tempCandidates.head)).map(x => return Option(x))) // Success, place light, and go next
 
-      backtracking(board, candidates.filterNot(p => p == tempCandidates.head)).map(x => return Option(x))
+    backtracking(board, candidates.filterNot(p => p == tempCandidates.head)).map(x => return Option(x))
     return None // No solution was found
   }
 
@@ -344,11 +347,18 @@ object solver extends App {
     return candidates.filterNot(pos => walls.contains(pos)) // Remove those empty tiles from the candidates list
   }
 
-  // TODO: Sort candidates by tiles around higher numbered walls firts
+  def sort_number_tiles2(board: Matrix, pos1: Position, pos2: Position): Boolean = {
+    board(pos1.row)(pos1.col).asDigit < board(pos2.row)(pos2.col).asDigit
+  }
+  /** Finds the empty tiles of numbered walls sorted
+   * Indirectly sorts the adjacent tiles from higher numbered walls first in candidates list 
+    */
   def sort_candidates(board: Matrix, candidates: List[Position]): List[Position] = {
-    val sortedList: ListBuffer[Position] = new ListBuffer[Position]()
-    val number_tiles = find_tiles(board, check_tile_if_num)
-      .sortWith(sort_number_tiles(board, _:Position, _:Position))
-    return candidates
+    val number_tiles: List[Position] = find_tiles(board, check_tile_if_num)   // Get all the numbered tiles
+      .sortWith(sort_number_tiles(board, _:Position, _:Position))             // Sort by highest number
+      .flatMap(pos => get_adjacent(board, pos))                               // Get the adjacent tiles of the numbered tiles
+      .intersect(candidates)                                                  // Keep tiles that is common with candidates
+    println("Sorted: " + number_tiles)
+    return number_tiles ::: candidates.diff(number_tiles)                     // Append the remaining candidates to the sorted empty tiles
   }
 }
