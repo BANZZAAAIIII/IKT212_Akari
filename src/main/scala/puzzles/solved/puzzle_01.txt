@@ -1,3 +1,6 @@
 puzzles 1
-size 3x6
-Some(List(List(*, 1, _), List(_, X, _), List(_, 2, *), List(_, *, 2), List(_, _, _), List(_, _, *)))
+size 8x4
+X0_*2*_X
+*__1_1_*
+_0__*___
+_X1*_XXX
