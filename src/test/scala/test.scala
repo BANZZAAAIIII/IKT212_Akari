@@ -306,11 +306,6 @@ class RemoveFilledWalls extends FunSuite {
     "_ _ _ _".toList.filter(filter_space),
     "* 2 * 1".toList.filter(filter_space)
   )
-  test("TestCheckIfGetWallAdjacent.PuzzleSolver") {
-    assert(solver.get_wall_adjacent(test_board, Position(1, 2)) == List(Position(1,1), Position(1,3), Position(0,2), Position(2,2)))
-    assert(solver.get_wall_adjacent(test_board2, Position(0,0)) == List(Position(0,1), Position(1,0)))
-    assert(solver.get_wall_adjacent(test_board2, Position(2,3)) == List(Position(2,2), Position(1,3)))
-  }
   test("TestRemoveWalledCandidatesNoCandidatesRemaining.PuzzleSolver") {
     assert(solver.remove_walled_candidates(test_board, solver.find_tiles(test_board, solver.check_tile_if_Empty)).isEmpty)
     assert(solver.remove_walled_candidates(test_board2, solver.find_tiles(test_board2, solver.check_tile_if_Empty)).isEmpty)
