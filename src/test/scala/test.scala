@@ -336,6 +336,36 @@ class RemoveFilledWalls extends FunSuite {
   }
 }
 
+class RemoveLitupCandidates extends FunSuite {
+  test("TestRemoveLitupCandidatesNoLights.PuzzleSolver") {
+    val test_board: Matrix = List(
+    "_ _ 0 _".toList.filter(filter_space),
+    "_ _ _ _".toList.filter(filter_space),
+    "_ 2 _ 1".toList.filter(filter_space))
+    val candidates = solver.find_tiles(test_board, solver.check_tile_if_Empty)
+    val lights = solver.find_tiles(test_board, solver.check_tile_if_light)
+    assert(solver.remove_litup_candidates(test_board, candidates, lights) == candidates)
+  }
+  test("TestRemoveLitupCandidatesWithLights.PuzzleSolver") {
+    val test_board: Matrix = List(
+    "* _ _ _".toList.filter(filter_space),
+    "_ _ _ *".toList.filter(filter_space))
+    val candidates = solver.find_tiles(test_board, solver.check_tile_if_Empty)
+    val lights = solver.find_tiles(test_board, solver.check_tile_if_light)
+    assert(solver.remove_litup_candidates(test_board, candidates, lights).isEmpty)
+  }
+  test("TestRemoveLitupCandidatesWithLightsAndEmptyTiles.PuzzleSolver") {
+    val test_board: Matrix = List(
+    "* _ _ _".toList.filter(filter_space),
+    "_ _ _ *".toList.filter(filter_space),
+    "_ _ _ _".toList.filter(filter_space))
+    val candidates = solver.find_tiles(test_board, solver.check_tile_if_Empty)
+    val lights = solver.find_tiles(test_board, solver.check_tile_if_light)
+    val solution = List(Position(2,1), Position(2,2))
+    assert(solver.remove_litup_candidates(test_board, candidates, lights) == solution)
+  }
+}
+
 class TestScalaStuff extends FunSuite {
   val test_board: List[List[Char]] = List(
     "* 1 _".toList.filter(filter_space),
