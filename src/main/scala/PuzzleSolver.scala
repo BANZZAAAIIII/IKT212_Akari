@@ -26,12 +26,13 @@ object PuzzleSolver extends App{
     println("Solving puzzle")
     puzzle.printBoard()
 
+    // TODO: Refactor this process
     timer.start()
     val board = solver.place_light_deterministic(puzzle.board)
-
     val candidates = solver.find_tiles(board, solver.check_tile_if_Empty)
     val tempCandidates = solver.remove_walled_candidates(board, candidates)
-    val solved_board: Option[Matrix] = solver.backtracking(board, tempCandidates)
+    val temp2Candidates = solver.remove_litup_candidates(board, tempCandidates, solver.find_tiles(board, solver.check_tile_if_light))
+    val solved_board: Option[Matrix] = solver.backtracking(board, temp2Candidates)
     timer.stop()
 
     // Prints
@@ -41,8 +42,7 @@ object PuzzleSolver extends App{
 
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, solved_board, puzzle.board)
   }
-    solve(new Puzzle(4, 4, None, Boards.id_7x7_c3mBc2a2a2a0c2m0c))
-//  putSolution(args(1), solve(getPuzzle(args(0))))
+ putSolution(args(1), solve(getPuzzle(args(0))))
 }
 
 object solver extends App {
@@ -313,6 +313,14 @@ object solver extends App {
     val sortedList: ListBuffer[Position] = new ListBuffer[Position]()
     val number_tiles = find_tiles(board, check_tile_if_num)
       .sortWith(sort_number_tiles(board, _:Position, _:Position))
+    return candidates
+  }
+
+  /** Removes all the tiles that have been lit up
+    */
+  def remove_litup_candidates(board: Matrix, candidates: List[Position], lights: List[Position]): List[Position] = {
+    if(!lights.isEmpty && !candidates.isEmpty)  // Check if there are any lights left, and there are still candidates to remove
+      return remove_litup_candidates(board, filter_litup(board, candidates, lights.head), lights.filterNot(p => p == lights.head))
     return candidates
   }
 }
