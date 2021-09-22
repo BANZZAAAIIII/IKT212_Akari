@@ -5,7 +5,7 @@ import utility.Util.filter_space
 
 object Boards {
   val simple_board: Matrix = List(
-    "_ 1 _ _".toList.filter(filter_space),
+    "_ _ _ *".toList.filter(filter_space),
     "_ X X _".toList.filter(filter_space),
     "_ 2 _ _".toList.filter(filter_space),
     "_ _ 3 X".toList.filter(filter_space),
@@ -59,5 +59,21 @@ object Boards {
     "_ _ _ _ _ _ _ _ ".toList.filter(filter_space)
   )
 
-
+  val big_boy: Matrix = List(
+    "_____1_____________X".toList,
+    "_X____X______X__X___".toList,
+    "___2_____20___1___X0".toList,
+    "___X__3___1____0____".toList,
+    "_XX_X3_X_X_X1__2__21".toList,
+    "2_____XX2__X_____X__".toList,
+    "__X_X____1__0_XX____".toList,
+    "X_02___1____X__X2_X_".toList,
+    "_____0_10_1_1_X_____".toList,
+    "_XX__X__X__________X".toList,
+    "___X____X_2__1___1__".toList,
+    "__4___XX_4_____1X_XX".toList,
+    "_4__X___X_X___1_2__X".toList,
+    "__3XX______0_____X__".toList,
+    "_____X_3_XX0____1_1_".toList
+  )
 }

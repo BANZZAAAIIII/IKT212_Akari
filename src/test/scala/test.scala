@@ -5,8 +5,6 @@ import solver.{check_placement, check_tile_if_num, check_tile_if_light}
 import utility.Util.filter_space
 
 
-
-/** A set of simple puzzles that the Akari solver can solve */
 class PlaceLightTests extends FunSuite {
   val test_board: Matrix = List(
     "_ 1 _".toList.filter(filter_space),
@@ -376,7 +374,5 @@ class TestScalaStuff extends FunSuite {
     "_ _ _".toList.filter(filter_space)
   )
 
-    solver.print_board(test_board)
-    solver.print_board(test_board.transpose)
 }
 
