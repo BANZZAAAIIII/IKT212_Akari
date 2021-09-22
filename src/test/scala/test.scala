@@ -260,14 +260,14 @@ class CheckFilterEmptyTests extends FunSuite {
     }
   }
 
-    test("TestCheckIfFilteredTwo.PuzzleSolver") {
-      val filtered_candidates: List[Position] = List(Position(0,0), Position(0,2), Position(1,0), Position(1,2), Position(2,0), Position(2,2), Position(3,0), Position(5,0), Position(5,2))
-      val pos: Position = new Position(4,1)
-      solver.filter_litup(test_board, candidates, pos) match {
-        case can:List[Position] => assert(can == filtered_candidates)
-        case _ => fail("Something went wrong")
-      }
+  test("TestCheckIfFilteredTwo.PuzzleSolver") {
+    val filtered_candidates: List[Position] = List(Position(0,0), Position(0,2), Position(1,0), Position(1,2), Position(2,0), Position(2,2), Position(3,0), Position(5,0), Position(5,2))
+    val pos: Position = new Position(4,1)
+    solver.filter_litup(test_board, candidates, pos) match {
+      case can:List[Position] => assert(can == filtered_candidates)
+      case _ => fail("Something went wrong")
     }
+  }
 
 
 }
