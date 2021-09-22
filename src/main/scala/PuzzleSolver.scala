@@ -1,7 +1,6 @@
 
 import PuzzleReaderWriter.{getPuzzle, putSolution}
 import com.akari.types._
-import solver.check_tile_if_Empty
 import stopwatch.Stopwatch
 import utility.Boards
 
@@ -110,9 +109,9 @@ object solver extends App {
         return None
     })
 
-    if (check_placement(board, pos)) {
+    if (check_placement(board, pos))
       return Option(board.updated(pos.row, board(pos.row).updated(pos.col, Light)))
-    } else
+    else
       return None
   }
 
@@ -158,25 +157,20 @@ object solver extends App {
   /** Checks the puzzle is solved
    *  Doesn't check if lights are placed incorrectly */
   def check_if_solved(board: Matrix): Boolean = {
-    for (row <- board.indices;
-         col <- board.head.indices)
-    {
-      if (board(row)(col) != Wall) {
-        if (check_tile_if_num(board(row)(col))) {
-          // Checks if correct num if lights are adjacent to number wall
-          val nr_of_light = get_number_of_lights_around_number(board, Position(row, col))
-
-          if (!(nr_of_light == board(row)(col).asDigit))
-            return false
-
-        } else {
-          // Check if that there is a light on current square and returns false it not.
-          if (check_placement(board, Position(row, col))) return false
-        }
-      }
-    }
-
-    return true
+    // Finds all number tiles and checks if it has enough lights
+    if (find_tiles(board, check_tile_if_num)
+        .forall(wall => get_number_of_lights_around_number(board, wall) == board(wall.row)(wall.col).asDigit)) {
+      // Checks that all empty tiles on the board is litup
+      if (remove_litup_candidates(
+        board,
+        find_tiles(board, check_tile_if_Empty),
+        find_tiles(board, check_tile_if_light)
+      ).isEmpty)
+        return true
+      else
+        return false
+    } else
+      return false
   }
 
   /** Finds all possible candidates
@@ -187,7 +181,7 @@ object solver extends App {
        row <- board.indices
        col <- board.head.indices
        if(condition(board(row)(col)))
-     } yield new Position(row,col)).toList
+     } yield Position(row,col)).toList
    }
 
 
@@ -206,9 +200,11 @@ object solver extends App {
     // Check if this node is promising
     promising += 1
     place_light(board, tempCandidates.head).map(newBoard =>
-      backtracking(newBoard, filter_litup(board, tempCandidates, tempCandidates.head)).map(x => return Option(x))) // Success, place light, and go next
+      backtracking(newBoard, filter_litup(board, tempCandidates, tempCandidates.head)).map(solvedBoard =>
+        return Option(solvedBoard))) // Success, place light, and go next
 
-    backtracking(board, candidates.filterNot(p => p == tempCandidates.head)).map(x => return Option(x))
+    backtracking(board, candidates.filterNot(p => p == tempCandidates.head)).map(solvedBoard =>
+      return Option(solvedBoard))
 
     return None // No solution was found
   }
@@ -259,19 +255,15 @@ object solver extends App {
       val nr_of_adjacent_lights = get_number_of_lights_around_number(newBoard, num_pos)
 
       // Checks if adjacent empty plus the amount of lights is greater then the number
-      if (adjacent_empty.length + nr_of_adjacent_lights == newBoard(num_pos.row)(num_pos.col).asDigit) {
-        adjacent_empty.foreach( tile => {
-          place_light(newBoard, tile) match {
-            case Some(b) => newBoard = b // Replaces board
-            case None    =>              // Optimally, this should not happen :)
-          }
-        })
-      }
+      if (adjacent_empty.length + nr_of_adjacent_lights == newBoard(num_pos.row)(num_pos.col).asDigit)
+        adjacent_empty.foreach( tile =>
+          place_light(newBoard, tile).foreach(b => newBoard = b)// Replaces board
+        )
     })
     // If there was any lights placed there may be new lights that can be placed
-    if (newBoard == board) {
+    if (newBoard == board)
       return newBoard
-    } else
+    else
       return place_light_deterministic(newBoard)
   }
 
@@ -279,7 +271,7 @@ object solver extends App {
   /** Checks if every wall in a given board have the required amount of lights around it
     * If the required amount of lights is fulfilled, remove the remaining empty tiles from the candidates list */
   def remove_walled_candidates(board: Matrix, candidates: List[Position]): List[Position] = {
-    val walls =  find_tiles(board, check_tile_if_num)       // Find every wall on the board
+    val walls = find_tiles(board, check_tile_if_num)       // Find every wall on the board
     .filter(wall =>                                         // Get all the walls who are completed
       get_number_of_lights_around_number(board, wall) ==    // Check if wall have the required lights around itself
         board(wall.row)(wall.col).asDigit)
@@ -303,11 +295,12 @@ object solver extends App {
     )
   }
 
-  // TODO: Sort candidates by tiles around higher numbered walls firts
   def sort_candidates(board: Matrix, candidates: List[Position]): List[Position] = {
-    val sortedList: ListBuffer[Position] = new ListBuffer[Position]()
-    val number_tiles = find_tiles(board, check_tile_if_num)
-      .sortWith(sort_number_tiles(board, _:Position, _:Position))
-    return candidates
+    val number_tiles: List[Position] = find_tiles(board, check_tile_if_num)   // Get all the numbered tiles
+      .sortWith(sort_number_tiles(board, _:Position, _:Position))             // Sort by highest number
+      .flatMap(pos => get_adjacent(board, pos))                               // Get the adjacent tiles of the numbered tiles
+      .intersect(candidates)                                                  // Keep tiles that is common with candidates
+    println("Sorted: " + number_tiles)
+    return number_tiles ::: candidates.diff(number_tiles)                     // Append the remaining candidates to the sorted empty tiles
   }
 }
