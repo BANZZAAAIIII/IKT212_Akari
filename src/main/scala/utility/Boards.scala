@@ -76,4 +76,15 @@ object Boards {
     "__3XX______0_____X__".toList,
     "_____X_3_XX0____1_1_".toList
   )
+  val id_8x9_10bBaBbBaBBBBBbB2aBBBaBcBBBaBBc2aBaBBaBBbBBBBBBb1BBaBBbBa2aBBB: Matrix = List(
+    "_X__1___".toList,
+    "_____XX_".toList,
+    "__2__1_1".toList,
+    "_21_____".toList,
+    "__1_____".toList,
+    "___2____".toList,
+    "X___2_2_".toList,
+    "__02___X".toList,
+    "_____1__".toList
+  )
 }

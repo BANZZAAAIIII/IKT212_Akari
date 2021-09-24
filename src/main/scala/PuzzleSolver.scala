@@ -16,7 +16,7 @@ object PuzzleSolver extends App{
     puzzle.printBoard()
 
     timer.start()
-    val board = solver.place_light_deterministic(puzzle.board)
+    val board = solver.trivial_solver(puzzle.board)
     val solved_board: Option[Matrix] = solver.backtracking(board, solver.get_candidates(board))
     timer.stop()
 
@@ -31,9 +31,10 @@ object PuzzleSolver extends App{
 
   if (args.nonEmpty)
     putSolution(args(1), solve(getPuzzle(args(0))))
-  else
+  else {
     println("No arguments given")
-//    solve(new Puzzle(4, 5, None, Boards.id_7x7_c3mBc2a2a2a0c2m0c))
+    solve(new Puzzle(4, 5, None, Boards.id_8x9_10bBaBbBaBBBBBbB2aBBBaBcBBBaBBc2aBaBBaBBbBBBBBBb1BBaBBbBa2aBBB))
+  }
 
 }
 
@@ -61,7 +62,7 @@ object solver extends App {
   def check_tile_if_wall(c: Char): Boolean = c match {
     case Zero | One | Two | Three | Four  => true // TODO: Check if we can use check_tile_if_num here instead of duplicate
     case Wall => true
-    case _ => false
+    case _    => false
   }
 
   /** Used to convert a function with signature Char => Boolean to (Matrix, Position) => Boolean */
@@ -71,7 +72,7 @@ object solver extends App {
 
   /** Checks a list if there is a light in it.
    *  Takes a Range to iterate over the list */
-  def check_list(board:List[Char], range: Range): Boolean = {
+  def check_list(board: List[Char], range: Range): Boolean = {
     range.foreach(index => {
       val tile = board(index)
       if (!check_tile_if_Empty(tile)) {
@@ -103,6 +104,7 @@ object solver extends App {
   def place_light(board: Matrix, pos: Position): Option[Matrix] = {
     if (!check_tile_if_Empty(board(pos.row)(pos.col))) return None
 
+    // TODO: Can this be changed to filter/forall?
     check_adjacent(board, pos, char_to_board_pos(_:Matrix, _:Position, check_tile_if_num)).foreach( num => {
       val nr_of_light = get_number_of_lights_around_number(board, num)
       if (nr_of_light >= board(num.row)(num.col).asDigit)
@@ -174,7 +176,7 @@ object solver extends App {
   }
 
   /** Finds all possible candidates
-  * Returned list is sorted by numbered walls as they are more difficult to solve */
+   *  Returned list is sorted by numbered walls as they are more difficult to solve */
    def find_tiles(board:Matrix, condition: Char => Boolean): List[Position] = {
    (for
      {
@@ -240,7 +242,7 @@ object solver extends App {
   }
 
   @tailrec
-  def place_light_deterministic(board: Matrix): Matrix = {
+  def trivial_solver(board: Matrix): Matrix = {
     // Gets all number tiles that are not satisfied
     val number_tiles = find_tiles(board, check_tile_if_num)
       .filterNot(wall =>
@@ -257,14 +259,14 @@ object solver extends App {
       // Checks if adjacent empty plus the amount of lights is greater then the number
       if (adjacent_empty.length + nr_of_adjacent_lights == newBoard(num_pos.row)(num_pos.col).asDigit)
         adjacent_empty.foreach( tile =>
-          place_light(newBoard, tile).foreach(b => newBoard = b)// Replaces board
+          place_light(newBoard, tile).foreach(b => newBoard = b) // Replaces board
         )
     })
     // If there was any lights placed there may be new lights that can be placed
     if (newBoard == board)
       return newBoard
     else
-      return place_light_deterministic(newBoard)
+      return trivial_solver(newBoard)
   }
 
 
