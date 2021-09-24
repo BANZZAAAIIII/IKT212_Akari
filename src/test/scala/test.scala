@@ -101,8 +101,8 @@ class PlaceLightDeterministicTest extends FunSuite {
   test("TestDeterministicLightPlacement.PuzzleSolver") {
     var pos = new Position(2, 0)
 
-    assert(solver.place_light_deterministic(id_4x8_3AaBa3d1a3c0nBb) == id_4x8_3AaBa3d1a3c0nBb_solved)
-    assert(solver.place_light_deterministic(id_7x7_a2Bj0fBc3cBf1j10a) == id_7x7_a2Bj0fBc3cBf1j10a_solved)
+    assert(solver.trivial_solver(id_4x8_3AaBa3d1a3c0nBb) == id_4x8_3AaBa3d1a3c0nBb_solved)
+    assert(solver.trivial_solver(id_7x7_a2Bj0fBc3cBf1j10a) == id_7x7_a2Bj0fBc3cBf1j10a_solved)
   }
 
 }

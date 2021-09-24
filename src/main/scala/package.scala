@@ -16,5 +16,5 @@ package object types {
     type Row = List[Char]
     type Matrix = List[Row]
 
-    case class Position (val row: Int, val col:Int)
+    case class Position (row: Int, col:Int)
 }
