@@ -234,31 +234,27 @@ object solver extends App {
     }
   }
 
-  def sort_number_tiles(board: Matrix, pos1: Position, pos2: Position): Boolean = {
+  def sort_number_tiles(pos1: Position, pos2: Position, board: Matrix): Boolean = {
     board(pos1.row)(pos1.col).asDigit > board(pos2.row)(pos2.col).asDigit
   }
 
+  /** Returns the number of adjacent empty tiles, where we can place a light, + number of adjacent lights */
+  def adjacent_valid(board: Matrix, pos: Position): Int = {
+    check_adjacent(board, pos, check_placement).length + get_number_of_lights_around_number(board, pos)
+  }
+
+  /** Places lights on all number tiles that have its number of adjacent empty valid tiles */
   @tailrec
   def trivial_solver(board: Matrix): Matrix = {
-    // Gets all number tiles that are not satisfied
-    val number_tiles = find_tiles(board, check_tile_if_num)
-      .filterNot(wall =>
-        get_number_of_lights_around_number(board, wall) == board(wall.row)(wall.col).asDigit)
-      .sortWith(sort_number_tiles(board, _:Position, _:Position))
+    var newBoard: Matrix = board
 
-    var newBoard:Matrix = board
+    find_tiles(newBoard, check_tile_if_num)
+      .filter(pos => get_number_of_lights_around_number(newBoard, pos) != newBoard(pos.row)(pos.col).asDigit)  // filter out number tiles that are satisfied
+      .filter(pos => adjacent_valid(newBoard, pos) == newBoard(pos.row)(pos.col).asDigit)                      // filter out number tiles that we can't place anything on
+      .sortWith(sort_number_tiles(_: Position, _: Position, newBoard))                                         // sort biggest to smallest num
+      .flatMap(pos => check_adjacent(newBoard, pos, check_placement).map( tile =>                              // Places light on each empty valid tile
+        place_light(newBoard, tile).map(b => newBoard = b)))
 
-    // Checks if we can place a light adjacent to num tile
-    number_tiles.foreach(num_pos => {
-      val adjacent_empty = check_adjacent(newBoard, num_pos, check_placement)
-      val nr_of_adjacent_lights = get_number_of_lights_around_number(newBoard, num_pos)
-
-      // Checks if adjacent empty plus the amount of lights is greater then the number
-      if (adjacent_empty.length + nr_of_adjacent_lights == newBoard(num_pos.row)(num_pos.col).asDigit)
-        adjacent_empty.foreach( tile =>
-          place_light(newBoard, tile).foreach(b => newBoard = b) // Replaces board
-        )
-    })
     // If there was any lights placed there may be new lights that can be placed
     if (newBoard == board)
       return newBoard
@@ -296,7 +292,7 @@ object solver extends App {
 
   def sort_candidates(board: Matrix, candidates: List[Position]): List[Position] = {
     val number_tiles: List[Position] = find_tiles(board, check_tile_if_num)   // Get all the numbered tiles
-      .sortWith(sort_number_tiles(board, _:Position, _:Position))             // Sort by highest number
+      .sortWith(sort_number_tiles(_:Position, _:Position, board))             // Sort by highest number
       .flatMap(pos => get_adjacent(board, pos))                               // Get the adjacent tiles of the numbered tiles
       .intersect(candidates)                                                  // Keep tiles that is common with candidates
     println("Sorted: " + number_tiles)
