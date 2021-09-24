@@ -104,14 +104,11 @@ object solver extends App {
   def place_light(board: Matrix, pos: Position): Option[Matrix] = {
     if (!check_tile_if_Empty(board(pos.row)(pos.col))) return None
 
-    // TODO: Can this be changed to filter/forall?
-    check_adjacent(board, pos, char_to_board_pos(_:Matrix, _:Position, check_tile_if_num)).foreach( num => {
-      val nr_of_light = get_number_of_lights_around_number(board, num)
-      if (nr_of_light >= board(num.row)(num.col).asDigit)
-        return None
-    })
-
-    if (check_placement(board, pos))
+    // Checks first if there are any adjacent number tiles that already have enough lights
+    if (check_adjacent(board, pos, char_to_board_pos(_: Matrix, _: Position, check_tile_if_num)).exists(num => {
+      get_number_of_lights_around_number(board, num) >= board(num.row)(num.col).asDigit})) {
+      return None
+    } else if (check_placement(board, pos))
       return Option(board.updated(pos.row, board(pos.row).updated(pos.col, Light)))
     else
       return None
